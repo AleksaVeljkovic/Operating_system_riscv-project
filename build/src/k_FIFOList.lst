@@ -1,0 +1,1237 @@
+GAS LISTING /tmp/cceAlX61.s 			page 1
+
+
+   1              		.file	"k_FIFOList.cpp"
+   2              		.option pic
+   3              		.option norelax
+   4              		.text
+   5              	.Ltext0:
+   6              		.align	2
+   8              	_Z41__static_initialization_and_destruction_0ii:
+   9              	.LFB15:
+  10              		.file 1 "src/k_FIFOList.cpp"
+   1:src/k_FIFOList.cpp **** 
+   2:src/k_FIFOList.cpp **** #include "../h/k_FIFOList.hpp"
+   3:src/k_FIFOList.cpp **** #include "../h/k_thread.hpp"
+   4:src/k_FIFOList.cpp **** 
+   5:src/k_FIFOList.cpp **** static node allNodes[MAX_NUM_OF_THREADS];
+   6:src/k_FIFOList.cpp **** static bool isOcc[MAX_NUM_OF_THREADS] = {false};
+   7:src/k_FIFOList.cpp **** 
+   8:src/k_FIFOList.cpp **** 
+   9:src/k_FIFOList.cpp **** static _fifoList allLists[MAX_NUM_OF_LISTS];
+  10:src/k_FIFOList.cpp **** static bool isOccList[MAX_NUM_OF_LISTS] = {false};
+  11:src/k_FIFOList.cpp **** 
+  12:src/k_FIFOList.cpp **** 
+  13:src/k_FIFOList.cpp **** void _fifoList::insertAtEnd(thread_t t) {
+  14:src/k_FIFOList.cpp **** 
+  15:src/k_FIFOList.cpp ****     node* n = new node(t);
+  16:src/k_FIFOList.cpp **** 
+  17:src/k_FIFOList.cpp **** 
+  18:src/k_FIFOList.cpp ****     if(first != nullptr){
+  19:src/k_FIFOList.cpp **** 
+  20:src/k_FIFOList.cpp ****         last->next = n;
+  21:src/k_FIFOList.cpp ****         last = n;
+  22:src/k_FIFOList.cpp ****     }
+  23:src/k_FIFOList.cpp **** 
+  24:src/k_FIFOList.cpp ****     else{
+  25:src/k_FIFOList.cpp **** 
+  26:src/k_FIFOList.cpp ****         first = last = n;
+  27:src/k_FIFOList.cpp ****     }
+  28:src/k_FIFOList.cpp **** 
+  29:src/k_FIFOList.cpp **** }
+  30:src/k_FIFOList.cpp **** 
+  31:src/k_FIFOList.cpp **** thread_t _fifoList::removeFromStart() {
+  32:src/k_FIFOList.cpp **** 
+  33:src/k_FIFOList.cpp ****     if(first != nullptr) {
+  34:src/k_FIFOList.cpp **** 
+  35:src/k_FIFOList.cpp ****         node *n = first;
+  36:src/k_FIFOList.cpp ****         delete(first);
+  37:src/k_FIFOList.cpp **** 
+  38:src/k_FIFOList.cpp ****         if (first == last) {
+  39:src/k_FIFOList.cpp ****             first = last = nullptr;
+  40:src/k_FIFOList.cpp ****         }
+  41:src/k_FIFOList.cpp **** 
+  42:src/k_FIFOList.cpp ****         else{
+  43:src/k_FIFOList.cpp ****             first = first->next;
+  44:src/k_FIFOList.cpp ****         }
+  45:src/k_FIFOList.cpp **** 
+  46:src/k_FIFOList.cpp ****         n->next = nullptr;
+  47:src/k_FIFOList.cpp **** 
+  48:src/k_FIFOList.cpp ****         return n->data;
+GAS LISTING /tmp/cceAlX61.s 			page 2
+
+
+  49:src/k_FIFOList.cpp ****     }
+  50:src/k_FIFOList.cpp **** 
+  51:src/k_FIFOList.cpp ****     return nullptr;
+  52:src/k_FIFOList.cpp **** }
+  53:src/k_FIFOList.cpp **** 
+  54:src/k_FIFOList.cpp **** void *node::operator new(size_t size) {
+  55:src/k_FIFOList.cpp **** 
+  56:src/k_FIFOList.cpp **** //    __putc('N');__putc('O');
+  57:src/k_FIFOList.cpp **** 
+  58:src/k_FIFOList.cpp ****     for (int i = 0; i < MAX_NUM_OF_THREADS; i++) {
+  59:src/k_FIFOList.cpp **** 
+  60:src/k_FIFOList.cpp ****         if (!isOcc[i]) {
+  61:src/k_FIFOList.cpp ****             isOcc[i] = true;
+  62:src/k_FIFOList.cpp ****             return (void *) (allNodes + i);
+  63:src/k_FIFOList.cpp ****         }
+  64:src/k_FIFOList.cpp ****     }
+  65:src/k_FIFOList.cpp ****     //__mem_alloc
+  66:src/k_FIFOList.cpp ****     return allNodes;
+  67:src/k_FIFOList.cpp **** 
+  68:src/k_FIFOList.cpp ****     // return __mem_alloc((size+MEM_BLOCK_SIZE-1)/MEM_BLOCK_SIZE);
+  69:src/k_FIFOList.cpp **** 
+  70:src/k_FIFOList.cpp **** }
+  71:src/k_FIFOList.cpp **** 
+  72:src/k_FIFOList.cpp **** void node::operator delete(void *ptr) noexcept {
+  73:src/k_FIFOList.cpp **** 
+  74:src/k_FIFOList.cpp ****  //   __putc('D');__putc('O');
+  75:src/k_FIFOList.cpp ****     int index = (node *)ptr - allNodes;
+  76:src/k_FIFOList.cpp ****     isOcc[index] = false;
+  77:src/k_FIFOList.cpp **** 
+  78:src/k_FIFOList.cpp **** }
+  79:src/k_FIFOList.cpp **** 
+  80:src/k_FIFOList.cpp **** void *_fifoList::operator new(size_t size) {
+  81:src/k_FIFOList.cpp **** 
+  82:src/k_FIFOList.cpp ****     for (int i = 0; i < MAX_NUM_OF_LISTS; i++) {
+  83:src/k_FIFOList.cpp **** 
+  84:src/k_FIFOList.cpp ****         if (!isOccList[i]) {
+  85:src/k_FIFOList.cpp ****             isOccList[i] = true;
+  86:src/k_FIFOList.cpp ****             return (void *) (allLists + i);
+  87:src/k_FIFOList.cpp ****         }
+  88:src/k_FIFOList.cpp ****     }
+  89:src/k_FIFOList.cpp **** 
+  90:src/k_FIFOList.cpp ****     return allLists;
+  91:src/k_FIFOList.cpp **** 
+  92:src/k_FIFOList.cpp ****     // return __mem_alloc((size+MEM_BLOCK_SIZE-1)/MEM_BLOCK_SIZE);
+  93:src/k_FIFOList.cpp ****     //  __mem_alloc()
+  94:src/k_FIFOList.cpp **** }
+  95:src/k_FIFOList.cpp **** 
+  96:src/k_FIFOList.cpp **** void _fifoList::operator delete(void *ptr) noexcept {
+  97:src/k_FIFOList.cpp **** 
+  98:src/k_FIFOList.cpp ****     int index = (_fifoList *)ptr - allLists;
+  99:src/k_FIFOList.cpp ****     isOccList[index] = false;
+ 100:src/k_FIFOList.cpp **** 
+ 101:src/k_FIFOList.cpp **** }
+  11              		.loc 1 101 1
+  12              		.cfi_startproc
+  13              	.LVL0:
+  14 0000 130101FF 		addi	sp,sp,-16
+GAS LISTING /tmp/cceAlX61.s 			page 3
+
+
+  15              		.cfi_def_cfa_offset 16
+  16 0004 23348100 		sd	s0,8(sp)
+  17              		.cfi_offset 8, -8
+  18 0008 13040101 		addi	s0,sp,16
+  19              		.cfi_def_cfa 8, 0
+  20              		.loc 1 101 1 is_stmt 0
+  21 000c 93071000 		li	a5,1
+  22 0010 6308F500 		beq	a0,a5,.L7
+  23              	.L1:
+  24 0014 03348100 		ld	s0,8(sp)
+  25              		.cfi_remember_state
+  26              		.cfi_restore 8
+  27              		.cfi_def_cfa 2, 16
+  28 0018 13010101 		addi	sp,sp,16
+  29              		.cfi_def_cfa_offset 0
+  30 001c 67800000 		jr	ra
+  31              	.L7:
+  32              		.cfi_restore_state
+  33              		.loc 1 101 1 discriminator 1
+  34 0020 B7070100 		li	a5,65536
+  35 0024 9387F7FF 		addi	a5,a5,-1
+  36 0028 E396F5FE 		bne	a1,a5,.L1
+   5:src/k_FIFOList.cpp **** static bool isOcc[MAX_NUM_OF_THREADS] = {false};
+  37              		.loc 1 5 40
+  38 002c 9307F007 		li	a5,127
+  39              	.L4:
+   5:src/k_FIFOList.cpp **** static bool isOcc[MAX_NUM_OF_THREADS] = {false};
+  40              		.loc 1 5 40 is_stmt 1 discriminator 4
+  41 0030 63C60700 		bltz	a5,.L5
+   5:src/k_FIFOList.cpp **** static bool isOcc[MAX_NUM_OF_THREADS] = {false};
+  42              		.loc 1 5 40
+  43 0034 9387F7FF 		addi	a5,a5,-1
+  44 0038 6FF09FFF 		j	.L4
+  45              	.L5:
+   9:src/k_FIFOList.cpp **** static bool isOccList[MAX_NUM_OF_LISTS] = {false};
+  46              		.loc 1 9 43 is_stmt 0
+  47 003c 13073006 		li	a4,99
+  48 0040 97070000 		lla	a5,.LANCHOR0
+  48      93870700 
+  49              	.L3:
+   9:src/k_FIFOList.cpp **** static bool isOccList[MAX_NUM_OF_LISTS] = {false};
+  50              		.loc 1 9 43 is_stmt 1 discriminator 4
+  51 0048 E34607FC 		bltz	a4,.L1
+  52              	.LVL1:
+  53              	.LBB10:
+  54              	.LBB11:
+  55              		.file 2 "src/../h/k_FIFOList.hpp"
+   1:src/../h/k_FIFOList.hpp **** 
+   2:src/../h/k_FIFOList.hpp **** #ifndef OSALEKSA_K_FIFOLIST_H
+   3:src/../h/k_FIFOList.hpp **** #define OSALEKSA_K_FIFOLIST_H
+   4:src/../h/k_FIFOList.hpp **** 
+   5:src/../h/k_FIFOList.hpp **** #include "../lib/console.h"
+   6:src/../h/k_FIFOList.hpp **** #include "../lib/hw.h"
+   7:src/../h/k_FIFOList.hpp **** #define MAX_NUM_OF_LISTS 100
+   8:src/../h/k_FIFOList.hpp **** 
+   9:src/../h/k_FIFOList.hpp **** class _thread;
+  10:src/../h/k_FIFOList.hpp **** typedef _thread * thread_t;
+GAS LISTING /tmp/cceAlX61.s 			page 4
+
+
+  11:src/../h/k_FIFOList.hpp **** 
+  12:src/../h/k_FIFOList.hpp **** class node{
+  13:src/../h/k_FIFOList.hpp **** 
+  14:src/../h/k_FIFOList.hpp **** public:
+  15:src/../h/k_FIFOList.hpp **** 
+  16:src/../h/k_FIFOList.hpp ****     thread_t data;
+  17:src/../h/k_FIFOList.hpp ****     node* next;
+  18:src/../h/k_FIFOList.hpp **** 
+  19:src/../h/k_FIFOList.hpp ****     node(){
+  20:src/../h/k_FIFOList.hpp ****       //  __putc('N');
+  21:src/../h/k_FIFOList.hpp ****       //  __putc('C');
+  22:src/../h/k_FIFOList.hpp ****     }
+  23:src/../h/k_FIFOList.hpp **** 
+  24:src/../h/k_FIFOList.hpp ****     node(thread_t _data){
+  25:src/../h/k_FIFOList.hpp ****         data = _data;
+  26:src/../h/k_FIFOList.hpp ****         next = nullptr;
+  27:src/../h/k_FIFOList.hpp ****     }
+  28:src/../h/k_FIFOList.hpp **** 
+  29:src/../h/k_FIFOList.hpp ****     void *operator new(size_t size);
+  30:src/../h/k_FIFOList.hpp **** 
+  31:src/../h/k_FIFOList.hpp ****     void operator delete(void *ptr) noexcept;
+  32:src/../h/k_FIFOList.hpp **** 
+  33:src/../h/k_FIFOList.hpp **** };
+  34:src/../h/k_FIFOList.hpp **** 
+  35:src/../h/k_FIFOList.hpp **** class _fifoList{
+  36:src/../h/k_FIFOList.hpp **** 
+  37:src/../h/k_FIFOList.hpp ****     node* first;
+  38:src/../h/k_FIFOList.hpp ****     node* last;
+  39:src/../h/k_FIFOList.hpp **** public:
+  40:src/../h/k_FIFOList.hpp **** 
+  41:src/../h/k_FIFOList.hpp ****     _fifoList(){
+  42:src/../h/k_FIFOList.hpp ****         first = last = nullptr;
+  56              		.loc 2 42 9
+  57              		.loc 2 42 22 is_stmt 0
+  58 004c 23B40700 		sd	zero,8(a5)
+  59              		.loc 2 42 15
+  60 0050 23B00700 		sd	zero,0(a5)
+  61              	.LVL2:
+  62              	.LBE11:
+  63              	.LBE10:
+   9:src/k_FIFOList.cpp **** static bool isOccList[MAX_NUM_OF_LISTS] = {false};
+  64              		.loc 1 9 43
+  65 0054 93870701 		addi	a5,a5,16
+   9:src/k_FIFOList.cpp **** static bool isOccList[MAX_NUM_OF_LISTS] = {false};
+  66              		.loc 1 9 43 is_stmt 1
+  67 0058 1307F7FF 		addi	a4,a4,-1
+  68 005c 6FF0DFFE 		j	.L3
+  69              		.cfi_endproc
+  70              	.LFE15:
+  72              		.align	2
+  73              		.globl	_ZN4nodenwEm
+  75              	_ZN4nodenwEm:
+  76              	.LFB11:
+  54:src/k_FIFOList.cpp **** 
+  77              		.loc 1 54 39
+  78              		.cfi_startproc
+  79              	.LVL3:
+GAS LISTING /tmp/cceAlX61.s 			page 5
+
+
+  80 0060 130101FF 		addi	sp,sp,-16
+  81              		.cfi_def_cfa_offset 16
+  82 0064 23348100 		sd	s0,8(sp)
+  83              		.cfi_offset 8, -8
+  84 0068 13040101 		addi	s0,sp,16
+  85              		.cfi_def_cfa 8, 0
+  58:src/k_FIFOList.cpp **** 
+  86              		.loc 1 58 5
+  87              	.LVL4:
+  88              	.LBB12:
+  58:src/k_FIFOList.cpp **** 
+  89              		.loc 1 58 14 is_stmt 0
+  90 006c 93070000 		li	a5,0
+  91 0070 6F008000 		j	.L11
+  92              	.LVL5:
+  93              	.L10:
+  58:src/k_FIFOList.cpp **** 
+  94              		.loc 1 58 5 is_stmt 1 discriminator 2
+  95 0074 9B871700 		addiw	a5,a5,1
+  96              	.LVL6:
+  97              	.L11:
+  58:src/k_FIFOList.cpp **** 
+  98              		.loc 1 58 23 discriminator 1
+  99 0078 1307F007 		li	a4,127
+ 100 007c 6344F704 		bgt	a5,a4,.L12
+  60:src/k_FIFOList.cpp ****             isOcc[i] = true;
+ 101              		.loc 1 60 9
+  60:src/k_FIFOList.cpp ****             isOcc[i] = true;
+ 102              		.loc 1 60 21 is_stmt 0
+ 103 0080 17070000 		lla	a4,.LANCHOR0
+ 103      13070700 
+ 104 0088 3307F700 		add	a4,a4,a5
+ 105 008c 03470764 		lbu	a4,1600(a4)
+  60:src/k_FIFOList.cpp ****             isOcc[i] = true;
+ 106              		.loc 1 60 9
+ 107 0090 E31207FE 		bnez	a4,.L10
+  61:src/k_FIFOList.cpp ****             return (void *) (allNodes + i);
+ 108              		.loc 1 61 13 is_stmt 1
+  61:src/k_FIFOList.cpp ****             return (void *) (allNodes + i);
+ 109              		.loc 1 61 22 is_stmt 0
+ 110 0094 17070000 		lla	a4,.LANCHOR0
+ 110      13070700 
+ 111 009c 3307F700 		add	a4,a4,a5
+ 112 00a0 93061000 		li	a3,1
+ 113 00a4 2300D764 		sb	a3,1600(a4)
+  62:src/k_FIFOList.cpp ****         }
+ 114              		.loc 1 62 13 is_stmt 1
+  62:src/k_FIFOList.cpp ****         }
+ 115              		.loc 1 62 39 is_stmt 0
+ 116 00a8 93974700 		slli	a5,a5,4
+ 117              	.LVL7:
+  62:src/k_FIFOList.cpp ****         }
+ 118              		.loc 1 62 42
+ 119 00ac 17050000 		lla	a0,_ZL8allNodes
+ 119      13050500 
+ 120              	.LVL8:
+ 121 00b4 3385A700 		add	a0,a5,a0
+GAS LISTING /tmp/cceAlX61.s 			page 6
+
+
+ 122              	.L8:
+ 123              	.LBE12:
+  70:src/k_FIFOList.cpp **** 
+ 124              		.loc 1 70 1
+ 125 00b8 03348100 		ld	s0,8(sp)
+ 126              		.cfi_remember_state
+ 127              		.cfi_restore 8
+ 128              		.cfi_def_cfa 2, 16
+ 129 00bc 13010101 		addi	sp,sp,16
+ 130              		.cfi_def_cfa_offset 0
+ 131 00c0 67800000 		jr	ra
+ 132              	.LVL9:
+ 133              	.L12:
+ 134              		.cfi_restore_state
+  66:src/k_FIFOList.cpp **** 
+ 135              		.loc 1 66 12
+ 136 00c4 17050000 		lla	a0,_ZL8allNodes
+ 136      13050500 
+ 137              	.LVL10:
+ 138 00cc 6FF0DFFE 		j	.L8
+ 139              		.cfi_endproc
+ 140              	.LFE11:
+ 142              		.align	2
+ 143              		.globl	_ZN9_fifoList11insertAtEndEP7_thread
+ 145              	_ZN9_fifoList11insertAtEndEP7_thread:
+ 146              	.LFB9:
+  13:src/k_FIFOList.cpp **** 
+ 147              		.loc 1 13 41 is_stmt 1
+ 148              		.cfi_startproc
+ 149              	.LVL11:
+ 150 00d0 130101FE 		addi	sp,sp,-32
+ 151              		.cfi_def_cfa_offset 32
+ 152 00d4 233C1100 		sd	ra,24(sp)
+ 153 00d8 23388100 		sd	s0,16(sp)
+ 154 00dc 23349100 		sd	s1,8(sp)
+ 155 00e0 23302101 		sd	s2,0(sp)
+ 156              		.cfi_offset 1, -8
+ 157              		.cfi_offset 8, -16
+ 158              		.cfi_offset 9, -24
+ 159              		.cfi_offset 18, -32
+ 160 00e4 13040102 		addi	s0,sp,32
+ 161              		.cfi_def_cfa 8, 0
+ 162 00e8 93040500 		mv	s1,a0
+ 163 00ec 13890500 		mv	s2,a1
+  15:src/k_FIFOList.cpp **** 
+ 164              		.loc 1 15 5
+  15:src/k_FIFOList.cpp **** 
+ 165              		.loc 1 15 25 is_stmt 0
+ 166 00f0 13050001 		li	a0,16
+ 167              	.LVL12:
+ 168 00f4 97000000 		call	_ZN4nodenwEm
+ 168      E7800000 
+ 169              	.LVL13:
+ 170              	.LBB13:
+ 171              	.LBB14:
+  25:src/../h/k_FIFOList.hpp ****         next = nullptr;
+ 172              		.loc 2 25 9 is_stmt 1
+GAS LISTING /tmp/cceAlX61.s 			page 7
+
+
+  25:src/../h/k_FIFOList.hpp ****         next = nullptr;
+ 173              		.loc 2 25 14 is_stmt 0
+ 174 00fc 23302501 		sd	s2,0(a0)
+  26:src/../h/k_FIFOList.hpp ****     }
+ 175              		.loc 2 26 9 is_stmt 1
+  26:src/../h/k_FIFOList.hpp ****     }
+ 176              		.loc 2 26 14 is_stmt 0
+ 177 0100 23340500 		sd	zero,8(a0)
+ 178              	.LVL14:
+ 179              	.LBE14:
+ 180              	.LBE13:
+  18:src/k_FIFOList.cpp **** 
+ 181              		.loc 1 18 5 is_stmt 1
+  18:src/k_FIFOList.cpp **** 
+ 182              		.loc 1 18 8 is_stmt 0
+ 183 0104 83B70400 		ld	a5,0(s1)
+  18:src/k_FIFOList.cpp **** 
+ 184              		.loc 1 18 5
+ 185 0108 63840702 		beqz	a5,.L15
+  20:src/k_FIFOList.cpp ****         last = n;
+ 186              		.loc 1 20 9 is_stmt 1
+ 187 010c 83B78400 		ld	a5,8(s1)
+  20:src/k_FIFOList.cpp ****         last = n;
+ 188              		.loc 1 20 20 is_stmt 0
+ 189 0110 23B4A700 		sd	a0,8(a5)
+  21:src/k_FIFOList.cpp ****     }
+ 190              		.loc 1 21 9 is_stmt 1
+  21:src/k_FIFOList.cpp ****     }
+ 191              		.loc 1 21 14 is_stmt 0
+ 192 0114 23B4A400 		sd	a0,8(s1)
+ 193              	.L14:
+  29:src/k_FIFOList.cpp **** 
+ 194              		.loc 1 29 1
+ 195 0118 83308101 		ld	ra,24(sp)
+ 196              		.cfi_remember_state
+ 197              		.cfi_restore 1
+ 198 011c 03340101 		ld	s0,16(sp)
+ 199              		.cfi_restore 8
+ 200              		.cfi_def_cfa 2, 32
+ 201 0120 83348100 		ld	s1,8(sp)
+ 202              		.cfi_restore 9
+ 203              	.LVL15:
+ 204 0124 03390100 		ld	s2,0(sp)
+ 205              		.cfi_restore 18
+ 206              	.LVL16:
+ 207 0128 13010102 		addi	sp,sp,32
+ 208              		.cfi_def_cfa_offset 0
+ 209 012c 67800000 		jr	ra
+ 210              	.LVL17:
+ 211              	.L15:
+ 212              		.cfi_restore_state
+  26:src/k_FIFOList.cpp ****     }
+ 213              		.loc 1 26 9 is_stmt 1
+  26:src/k_FIFOList.cpp ****     }
+ 214              		.loc 1 26 22 is_stmt 0
+ 215 0130 23B4A400 		sd	a0,8(s1)
+  26:src/k_FIFOList.cpp ****     }
+GAS LISTING /tmp/cceAlX61.s 			page 8
+
+
+ 216              		.loc 1 26 15
+ 217 0134 23B0A400 		sd	a0,0(s1)
+  29:src/k_FIFOList.cpp **** 
+ 218              		.loc 1 29 1
+ 219 0138 6FF01FFE 		j	.L14
+ 220              		.cfi_endproc
+ 221              	.LFE9:
+ 223              		.align	2
+ 224              		.globl	_ZN4nodedlEPv
+ 226              	_ZN4nodedlEPv:
+ 227              	.LFB12:
+  72:src/k_FIFOList.cpp **** 
+ 228              		.loc 1 72 48 is_stmt 1
+ 229              		.cfi_startproc
+ 230              	.LVL18:
+ 231 013c 130101FF 		addi	sp,sp,-16
+ 232              		.cfi_def_cfa_offset 16
+ 233 0140 23348100 		sd	s0,8(sp)
+ 234              		.cfi_offset 8, -8
+ 235 0144 13040101 		addi	s0,sp,16
+ 236              		.cfi_def_cfa 8, 0
+  75:src/k_FIFOList.cpp ****     isOcc[index] = false;
+ 237              		.loc 1 75 5
+  75:src/k_FIFOList.cpp ****     isOcc[index] = false;
+ 238              		.loc 1 75 29 is_stmt 0
+ 239 0148 97070000 		lla	a5,_ZL8allNodes
+ 239      93870700 
+ 240 0150 3305F540 		sub	a0,a0,a5
+ 241              	.LVL19:
+ 242 0154 13554540 		srai	a0,a0,4
+ 243              	.LVL20:
+  75:src/k_FIFOList.cpp ****     isOcc[index] = false;
+ 244              		.loc 1 75 9
+ 245 0158 1B050500 		sext.w	a0,a0
+ 246              	.LVL21:
+  76:src/k_FIFOList.cpp **** 
+ 247              		.loc 1 76 5 is_stmt 1
+  76:src/k_FIFOList.cpp **** 
+ 248              		.loc 1 76 18 is_stmt 0
+ 249 015c 97070000 		lla	a5,.LANCHOR0
+ 249      93870700 
+ 250 0164 3385A700 		add	a0,a5,a0
+ 251              	.LVL22:
+ 252 0168 23000564 		sb	zero,1600(a0)
+  78:src/k_FIFOList.cpp **** 
+ 253              		.loc 1 78 1
+ 254 016c 03348100 		ld	s0,8(sp)
+ 255              		.cfi_restore 8
+ 256              		.cfi_def_cfa 2, 16
+ 257 0170 13010101 		addi	sp,sp,16
+ 258              		.cfi_def_cfa_offset 0
+ 259 0174 67800000 		jr	ra
+ 260              		.cfi_endproc
+ 261              	.LFE12:
+ 263              		.align	2
+ 264              		.globl	_ZN9_fifoList15removeFromStartEv
+ 266              	_ZN9_fifoList15removeFromStartEv:
+GAS LISTING /tmp/cceAlX61.s 			page 9
+
+
+ 267              	.LFB10:
+  31:src/k_FIFOList.cpp **** 
+ 268              		.loc 1 31 39 is_stmt 1
+ 269              		.cfi_startproc
+ 270              	.LVL23:
+ 271 0178 130101FE 		addi	sp,sp,-32
+ 272              		.cfi_def_cfa_offset 32
+ 273 017c 233C1100 		sd	ra,24(sp)
+ 274 0180 23388100 		sd	s0,16(sp)
+ 275 0184 23349100 		sd	s1,8(sp)
+ 276 0188 23302101 		sd	s2,0(sp)
+ 277              		.cfi_offset 1, -8
+ 278              		.cfi_offset 8, -16
+ 279              		.cfi_offset 9, -24
+ 280              		.cfi_offset 18, -32
+ 281 018c 13040102 		addi	s0,sp,32
+ 282              		.cfi_def_cfa 8, 0
+  33:src/k_FIFOList.cpp **** 
+ 283              		.loc 1 33 5
+ 284              	.LBB15:
+  33:src/k_FIFOList.cpp **** 
+ 285              		.loc 1 33 8 is_stmt 0
+ 286 0190 03390500 		ld	s2,0(a0)
+  33:src/k_FIFOList.cpp **** 
+ 287              		.loc 1 33 5
+ 288 0194 63080902 		beqz	s2,.L20
+ 289 0198 93040500 		mv	s1,a0
+ 290              	.LBB16:
+  35:src/k_FIFOList.cpp ****         delete(first);
+ 291              		.loc 1 35 9 is_stmt 1 discriminator 1
+ 292              	.LVL24:
+  36:src/k_FIFOList.cpp **** 
+ 293              		.loc 1 36 9 discriminator 1
+  36:src/k_FIFOList.cpp **** 
+ 294              		.loc 1 36 21 is_stmt 0 discriminator 1
+ 295 019c 13050900 		mv	a0,s2
+ 296              	.LVL25:
+ 297 01a0 97000000 		call	_ZN4nodedlEPv
+ 297      E7800000 
+ 298              	.LVL26:
+  38:src/k_FIFOList.cpp ****             first = last = nullptr;
+ 299              		.loc 1 38 9 is_stmt 1 discriminator 1
+  38:src/k_FIFOList.cpp ****             first = last = nullptr;
+ 300              		.loc 1 38 13 is_stmt 0 discriminator 1
+ 301 01a8 83B70400 		ld	a5,0(s1)
+  38:src/k_FIFOList.cpp ****             first = last = nullptr;
+ 302              		.loc 1 38 22 discriminator 1
+ 303 01ac 03B78400 		ld	a4,8(s1)
+  38:src/k_FIFOList.cpp ****             first = last = nullptr;
+ 304              		.loc 1 38 9 discriminator 1
+ 305 01b0 6388E702 		beq	a5,a4,.L25
+  43:src/k_FIFOList.cpp ****         }
+ 306              		.loc 1 43 13 is_stmt 1
+  43:src/k_FIFOList.cpp ****         }
+ 307              		.loc 1 43 28 is_stmt 0
+ 308 01b4 83B78700 		ld	a5,8(a5)
+  43:src/k_FIFOList.cpp ****         }
+GAS LISTING /tmp/cceAlX61.s 			page 10
+
+
+ 309              		.loc 1 43 19
+ 310 01b8 23B0F400 		sd	a5,0(s1)
+ 311              	.L23:
+  46:src/k_FIFOList.cpp **** 
+ 312              		.loc 1 46 9 is_stmt 1
+  46:src/k_FIFOList.cpp **** 
+ 313              		.loc 1 46 17 is_stmt 0
+ 314 01bc 23340900 		sd	zero,8(s2)
+  48:src/k_FIFOList.cpp ****     }
+ 315              		.loc 1 48 9 is_stmt 1
+  48:src/k_FIFOList.cpp ****     }
+ 316              		.loc 1 48 19 is_stmt 0
+ 317 01c0 03390900 		ld	s2,0(s2)
+ 318              	.LVL27:
+ 319              	.L20:
+ 320              	.LBE16:
+ 321              	.LBE15:
+  52:src/k_FIFOList.cpp **** 
+ 322              		.loc 1 52 1
+ 323 01c4 13050900 		mv	a0,s2
+ 324 01c8 83308101 		ld	ra,24(sp)
+ 325              		.cfi_remember_state
+ 326              		.cfi_restore 1
+ 327 01cc 03340101 		ld	s0,16(sp)
+ 328              		.cfi_restore 8
+ 329              		.cfi_def_cfa 2, 32
+ 330 01d0 83348100 		ld	s1,8(sp)
+ 331              		.cfi_restore 9
+ 332 01d4 03390100 		ld	s2,0(sp)
+ 333              		.cfi_restore 18
+ 334 01d8 13010102 		addi	sp,sp,32
+ 335              		.cfi_def_cfa_offset 0
+ 336 01dc 67800000 		jr	ra
+ 337              	.LVL28:
+ 338              	.L25:
+ 339              		.cfi_restore_state
+ 340              	.LBB18:
+ 341              	.LBB17:
+  39:src/k_FIFOList.cpp ****         }
+ 342              		.loc 1 39 13 is_stmt 1
+  39:src/k_FIFOList.cpp ****         }
+ 343              		.loc 1 39 26 is_stmt 0
+ 344 01e0 23B40400 		sd	zero,8(s1)
+  39:src/k_FIFOList.cpp ****         }
+ 345              		.loc 1 39 19
+ 346 01e4 23B00400 		sd	zero,0(s1)
+ 347 01e8 6FF05FFD 		j	.L23
+ 348              	.LBE17:
+ 349              	.LBE18:
+ 350              		.cfi_endproc
+ 351              	.LFE10:
+ 353              		.align	2
+ 354              		.globl	_ZN9_fifoListnwEm
+ 356              	_ZN9_fifoListnwEm:
+ 357              	.LFB13:
+  80:src/k_FIFOList.cpp **** 
+ 358              		.loc 1 80 44 is_stmt 1
+GAS LISTING /tmp/cceAlX61.s 			page 11
+
+
+ 359              		.cfi_startproc
+ 360              	.LVL29:
+ 361 01ec 130101FF 		addi	sp,sp,-16
+ 362              		.cfi_def_cfa_offset 16
+ 363 01f0 23348100 		sd	s0,8(sp)
+ 364              		.cfi_offset 8, -8
+ 365 01f4 13040101 		addi	s0,sp,16
+ 366              		.cfi_def_cfa 8, 0
+  82:src/k_FIFOList.cpp **** 
+ 367              		.loc 1 82 5
+ 368              	.LVL30:
+ 369              	.LBB19:
+  82:src/k_FIFOList.cpp **** 
+ 370              		.loc 1 82 14 is_stmt 0
+ 371 01f8 93070000 		li	a5,0
+ 372 01fc 6F008000 		j	.L29
+ 373              	.LVL31:
+ 374              	.L28:
+  82:src/k_FIFOList.cpp **** 
+ 375              		.loc 1 82 5 is_stmt 1 discriminator 2
+ 376 0200 9B871700 		addiw	a5,a5,1
+ 377              	.LVL32:
+ 378              	.L29:
+  82:src/k_FIFOList.cpp **** 
+ 379              		.loc 1 82 23 discriminator 1
+ 380 0204 13073006 		li	a4,99
+ 381 0208 6340F704 		bgt	a5,a4,.L30
+  84:src/k_FIFOList.cpp ****             isOccList[i] = true;
+ 382              		.loc 1 84 9
+  84:src/k_FIFOList.cpp ****             isOccList[i] = true;
+ 383              		.loc 1 84 25 is_stmt 0
+ 384 020c 17070000 		lla	a4,.LANCHOR0
+ 384      13070700 
+ 385 0214 3307F700 		add	a4,a4,a5
+ 386 0218 0347076C 		lbu	a4,1728(a4)
+  84:src/k_FIFOList.cpp ****             isOccList[i] = true;
+ 387              		.loc 1 84 9
+ 388 021c E31207FE 		bnez	a4,.L28
+  85:src/k_FIFOList.cpp ****             return (void *) (allLists + i);
+ 389              		.loc 1 85 13 is_stmt 1
+  85:src/k_FIFOList.cpp ****             return (void *) (allLists + i);
+ 390              		.loc 1 85 26 is_stmt 0
+ 391 0220 17050000 		lla	a0,.LANCHOR0
+ 391      13050500 
+ 392              	.LVL33:
+ 393 0228 3307F500 		add	a4,a0,a5
+ 394 022c 93061000 		li	a3,1
+ 395 0230 2300D76C 		sb	a3,1728(a4)
+  86:src/k_FIFOList.cpp ****         }
+ 396              		.loc 1 86 13 is_stmt 1
+  86:src/k_FIFOList.cpp ****         }
+ 397              		.loc 1 86 39 is_stmt 0
+ 398 0234 93974700 		slli	a5,a5,4
+ 399              	.LVL34:
+  86:src/k_FIFOList.cpp ****         }
+ 400              		.loc 1 86 42
+ 401 0238 3305F500 		add	a0,a0,a5
+GAS LISTING /tmp/cceAlX61.s 			page 12
+
+
+ 402              	.L26:
+ 403              	.LBE19:
+  94:src/k_FIFOList.cpp **** 
+ 404              		.loc 1 94 1
+ 405 023c 03348100 		ld	s0,8(sp)
+ 406              		.cfi_remember_state
+ 407              		.cfi_restore 8
+ 408              		.cfi_def_cfa 2, 16
+ 409 0240 13010101 		addi	sp,sp,16
+ 410              		.cfi_def_cfa_offset 0
+ 411 0244 67800000 		jr	ra
+ 412              	.LVL35:
+ 413              	.L30:
+ 414              		.cfi_restore_state
+  90:src/k_FIFOList.cpp **** 
+ 415              		.loc 1 90 12
+ 416 0248 17050000 		lla	a0,.LANCHOR0
+ 416      13050500 
+ 417              	.LVL36:
+ 418 0250 6FF0DFFE 		j	.L26
+ 419              		.cfi_endproc
+ 420              	.LFE13:
+ 422              		.align	2
+ 423              		.globl	_ZN9_fifoListdlEPv
+ 425              	_ZN9_fifoListdlEPv:
+ 426              	.LFB14:
+  96:src/k_FIFOList.cpp **** 
+ 427              		.loc 1 96 53 is_stmt 1
+ 428              		.cfi_startproc
+ 429              	.LVL37:
+ 430 0254 130101FF 		addi	sp,sp,-16
+ 431              		.cfi_def_cfa_offset 16
+ 432 0258 23348100 		sd	s0,8(sp)
+ 433              		.cfi_offset 8, -8
+ 434 025c 13040101 		addi	s0,sp,16
+ 435              		.cfi_def_cfa 8, 0
+  98:src/k_FIFOList.cpp ****     isOccList[index] = false;
+ 436              		.loc 1 98 5
+  98:src/k_FIFOList.cpp ****     isOccList[index] = false;
+ 437              		.loc 1 98 34 is_stmt 0
+ 438 0260 97070000 		lla	a5,.LANCHOR0
+ 438      93870700 
+ 439 0268 3305F540 		sub	a0,a0,a5
+ 440              	.LVL38:
+ 441 026c 13554540 		srai	a0,a0,4
+ 442              	.LVL39:
+  98:src/k_FIFOList.cpp ****     isOccList[index] = false;
+ 443              		.loc 1 98 9
+ 444 0270 1B050500 		sext.w	a0,a0
+ 445              	.LVL40:
+  99:src/k_FIFOList.cpp **** 
+ 446              		.loc 1 99 5 is_stmt 1
+  99:src/k_FIFOList.cpp **** 
+ 447              		.loc 1 99 22 is_stmt 0
+ 448 0274 3385A700 		add	a0,a5,a0
+ 449              	.LVL41:
+ 450 0278 2300056C 		sb	zero,1728(a0)
+GAS LISTING /tmp/cceAlX61.s 			page 13
+
+
+ 451              		.loc 1 101 1
+ 452 027c 03348100 		ld	s0,8(sp)
+ 453              		.cfi_restore 8
+ 454              		.cfi_def_cfa 2, 16
+ 455 0280 13010101 		addi	sp,sp,16
+ 456              		.cfi_def_cfa_offset 0
+ 457 0284 67800000 		jr	ra
+ 458              		.cfi_endproc
+ 459              	.LFE14:
+ 461              		.align	2
+ 463              	_GLOBAL__sub_I__ZN9_fifoList11insertAtEndEP7_thread:
+ 464              	.LFB16:
+ 465              		.loc 1 101 1 is_stmt 1
+ 466              		.cfi_startproc
+ 467 0288 130101FF 		addi	sp,sp,-16
+ 468              		.cfi_def_cfa_offset 16
+ 469 028c 23341100 		sd	ra,8(sp)
+ 470 0290 23308100 		sd	s0,0(sp)
+ 471              		.cfi_offset 1, -8
+ 472              		.cfi_offset 8, -16
+ 473 0294 13040101 		addi	s0,sp,16
+ 474              		.cfi_def_cfa 8, 0
+ 475              		.loc 1 101 1 is_stmt 0
+ 476 0298 B7050100 		li	a1,65536
+ 477 029c 9385F5FF 		addi	a1,a1,-1
+ 478 02a0 13051000 		li	a0,1
+ 479 02a4 97000000 		call	_Z41__static_initialization_and_destruction_0ii
+ 479      E7800000 
+ 480              	.LVL42:
+ 481 02ac 83308100 		ld	ra,8(sp)
+ 482              		.cfi_restore 1
+ 483 02b0 03340100 		ld	s0,0(sp)
+ 484              		.cfi_restore 8
+ 485              		.cfi_def_cfa 2, 16
+ 486 02b4 13010101 		addi	sp,sp,16
+ 487              		.cfi_def_cfa_offset 0
+ 488 02b8 67800000 		jr	ra
+ 489              		.cfi_endproc
+ 490              	.LFE16:
+ 492              		.section	.init_array,"aw"
+ 493              		.align	3
+ 494 0000 00000000 		.dword	_GLOBAL__sub_I__ZN9_fifoList11insertAtEndEP7_thread
+ 494      00000000 
+ 495              		.bss
+ 496              		.align	3
+ 497              		.set	.LANCHOR0,. + 0
+ 500              	_ZL8allLists:
+ 501 0000 00000000 		.zero	1600
+ 501      00000000 
+ 501      00000000 
+ 501      00000000 
+ 501      00000000 
+ 504              	_ZL5isOcc:
+ 505 0640 00000000 		.zero	128
+ 505      00000000 
+ 505      00000000 
+ 505      00000000 
+GAS LISTING /tmp/cceAlX61.s 			page 14
+
+
+ 505      00000000 
+ 508              	_ZL9isOccList:
+ 509 06c0 00000000 		.zero	100
+ 509      00000000 
+ 509      00000000 
+ 509      00000000 
+ 509      00000000 
+ 510 0724 00000000 		.zero	4
+ 513              	_ZL8allNodes:
+ 514 0728 00000000 		.zero	2048
+ 514      00000000 
+ 514      00000000 
+ 514      00000000 
+ 514      00000000 
+ 515              		.text
+ 516              	.Letext0:
+ 517              		.file 3 "src/../h/../lib/hw.h"
+ 518              		.file 4 "src/../h/k_thread.hpp"
+GAS LISTING /tmp/cceAlX61.s 			page 15
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 k_FIFOList.cpp
+     /tmp/cceAlX61.s:8      .text:0000000000000000 _Z41__static_initialization_and_destruction_0ii
+     /tmp/cceAlX61.s:12     .text:0000000000000000 .L0 
+     /tmp/cceAlX61.s:14     .text:0000000000000000 .L0 
+     /tmp/cceAlX61.s:15     .text:0000000000000004 .L0 
+     /tmp/cceAlX61.s:17     .text:0000000000000008 .L0 
+     /tmp/cceAlX61.s:19     .text:000000000000000c .L0 
+     /tmp/cceAlX61.s:21     .text:000000000000000c .L0 
+     /tmp/cceAlX61.s:25     .text:0000000000000018 .L0 
+     /tmp/cceAlX61.s:26     .text:0000000000000018 .L0 
+     /tmp/cceAlX61.s:27     .text:0000000000000018 .L0 
+     /tmp/cceAlX61.s:29     .text:000000000000001c .L0 
+     /tmp/cceAlX61.s:32     .text:0000000000000020 .L0 
+     /tmp/cceAlX61.s:34     .text:0000000000000020 .L0 
+     /tmp/cceAlX61.s:38     .text:000000000000002c .L0 
+     /tmp/cceAlX61.s:41     .text:0000000000000030 .L0 
+     /tmp/cceAlX61.s:43     .text:0000000000000034 .L0 
+     /tmp/cceAlX61.s:47     .text:000000000000003c .L0 
+     /tmp/cceAlX61.s:51     .text:0000000000000048 .L0 
+     /tmp/cceAlX61.s:57     .text:000000000000004c .L0 
+     /tmp/cceAlX61.s:58     .text:000000000000004c .L0 
+     /tmp/cceAlX61.s:60     .text:0000000000000050 .L0 
+     /tmp/cceAlX61.s:65     .text:0000000000000054 .L0 
+     /tmp/cceAlX61.s:67     .text:0000000000000058 .L0 
+     /tmp/cceAlX61.s:69     .text:0000000000000060 .L0 
+     /tmp/cceAlX61.s:75     .text:0000000000000060 _ZN4nodenwEm
+     /tmp/cceAlX61.s:78     .text:0000000000000060 .L0 
+     /tmp/cceAlX61.s:80     .text:0000000000000060 .L0 
+     /tmp/cceAlX61.s:81     .text:0000000000000064 .L0 
+     /tmp/cceAlX61.s:83     .text:0000000000000068 .L0 
+     /tmp/cceAlX61.s:85     .text:000000000000006c .L0 
+     /tmp/cceAlX61.s:89     .text:000000000000006c .L0 
+     /tmp/cceAlX61.s:90     .text:000000000000006c .L0 
+     /tmp/cceAlX61.s:95     .text:0000000000000074 .L0 
+     /tmp/cceAlX61.s:99     .text:0000000000000078 .L0 
+     /tmp/cceAlX61.s:102    .text:0000000000000080 .L0 
+     /tmp/cceAlX61.s:103    .text:0000000000000080 .L0 
+     /tmp/cceAlX61.s:107    .text:0000000000000090 .L0 
+     /tmp/cceAlX61.s:109    .text:0000000000000094 .L0 
+     /tmp/cceAlX61.s:110    .text:0000000000000094 .L0 
+     /tmp/cceAlX61.s:115    .text:00000000000000a8 .L0 
+     /tmp/cceAlX61.s:116    .text:00000000000000a8 .L0 
+     /tmp/cceAlX61.s:513    .bss:0000000000000728 _ZL8allNodes
+     /tmp/cceAlX61.s:119    .text:00000000000000ac .L0 
+     /tmp/cceAlX61.s:125    .text:00000000000000b8 .L0 
+     /tmp/cceAlX61.s:126    .text:00000000000000bc .L0 
+     /tmp/cceAlX61.s:127    .text:00000000000000bc .L0 
+     /tmp/cceAlX61.s:128    .text:00000000000000bc .L0 
+     /tmp/cceAlX61.s:130    .text:00000000000000c0 .L0 
+     /tmp/cceAlX61.s:134    .text:00000000000000c4 .L0 
+     /tmp/cceAlX61.s:136    .text:00000000000000c4 .L0 
+     /tmp/cceAlX61.s:139    .text:00000000000000d0 .L0 
+     /tmp/cceAlX61.s:145    .text:00000000000000d0 _ZN9_fifoList11insertAtEndEP7_thread
+     /tmp/cceAlX61.s:148    .text:00000000000000d0 .L0 
+     /tmp/cceAlX61.s:150    .text:00000000000000d0 .L0 
+     /tmp/cceAlX61.s:151    .text:00000000000000d4 .L0 
+GAS LISTING /tmp/cceAlX61.s 			page 16
+
+
+     /tmp/cceAlX61.s:156    .text:00000000000000e4 .L0 
+     /tmp/cceAlX61.s:157    .text:00000000000000e4 .L0 
+     /tmp/cceAlX61.s:158    .text:00000000000000e4 .L0 
+     /tmp/cceAlX61.s:159    .text:00000000000000e4 .L0 
+     /tmp/cceAlX61.s:161    .text:00000000000000e8 .L0 
+     /tmp/cceAlX61.s:165    .text:00000000000000f0 .L0 
+     /tmp/cceAlX61.s:166    .text:00000000000000f0 .L0 
+     /tmp/cceAlX61.s:173    .text:00000000000000fc .L0 
+     /tmp/cceAlX61.s:174    .text:00000000000000fc .L0 
+     /tmp/cceAlX61.s:176    .text:0000000000000100 .L0 
+     /tmp/cceAlX61.s:177    .text:0000000000000100 .L0 
+     /tmp/cceAlX61.s:182    .text:0000000000000104 .L0 
+     /tmp/cceAlX61.s:183    .text:0000000000000104 .L0 
+     /tmp/cceAlX61.s:185    .text:0000000000000108 .L0 
+     /tmp/cceAlX61.s:187    .text:000000000000010c .L0 
+     /tmp/cceAlX61.s:189    .text:0000000000000110 .L0 
+     /tmp/cceAlX61.s:191    .text:0000000000000114 .L0 
+     /tmp/cceAlX61.s:192    .text:0000000000000114 .L0 
+     /tmp/cceAlX61.s:195    .text:0000000000000118 .L0 
+     /tmp/cceAlX61.s:196    .text:000000000000011c .L0 
+     /tmp/cceAlX61.s:197    .text:000000000000011c .L0 
+     /tmp/cceAlX61.s:199    .text:0000000000000120 .L0 
+     /tmp/cceAlX61.s:200    .text:0000000000000120 .L0 
+     /tmp/cceAlX61.s:202    .text:0000000000000124 .L0 
+     /tmp/cceAlX61.s:205    .text:0000000000000128 .L0 
+     /tmp/cceAlX61.s:208    .text:000000000000012c .L0 
+     /tmp/cceAlX61.s:212    .text:0000000000000130 .L0 
+     /tmp/cceAlX61.s:214    .text:0000000000000130 .L0 
+     /tmp/cceAlX61.s:215    .text:0000000000000130 .L0 
+     /tmp/cceAlX61.s:217    .text:0000000000000134 .L0 
+     /tmp/cceAlX61.s:219    .text:0000000000000138 .L0 
+     /tmp/cceAlX61.s:220    .text:000000000000013c .L0 
+     /tmp/cceAlX61.s:226    .text:000000000000013c _ZN4nodedlEPv
+     /tmp/cceAlX61.s:229    .text:000000000000013c .L0 
+     /tmp/cceAlX61.s:231    .text:000000000000013c .L0 
+     /tmp/cceAlX61.s:232    .text:0000000000000140 .L0 
+     /tmp/cceAlX61.s:234    .text:0000000000000144 .L0 
+     /tmp/cceAlX61.s:236    .text:0000000000000148 .L0 
+     /tmp/cceAlX61.s:238    .text:0000000000000148 .L0 
+     /tmp/cceAlX61.s:239    .text:0000000000000148 .L0 
+     /tmp/cceAlX61.s:245    .text:0000000000000158 .L0 
+     /tmp/cceAlX61.s:248    .text:000000000000015c .L0 
+     /tmp/cceAlX61.s:249    .text:000000000000015c .L0 
+     /tmp/cceAlX61.s:254    .text:000000000000016c .L0 
+     /tmp/cceAlX61.s:255    .text:0000000000000170 .L0 
+     /tmp/cceAlX61.s:256    .text:0000000000000170 .L0 
+     /tmp/cceAlX61.s:258    .text:0000000000000174 .L0 
+     /tmp/cceAlX61.s:260    .text:0000000000000178 .L0 
+     /tmp/cceAlX61.s:266    .text:0000000000000178 _ZN9_fifoList15removeFromStartEv
+     /tmp/cceAlX61.s:269    .text:0000000000000178 .L0 
+     /tmp/cceAlX61.s:271    .text:0000000000000178 .L0 
+     /tmp/cceAlX61.s:272    .text:000000000000017c .L0 
+     /tmp/cceAlX61.s:277    .text:000000000000018c .L0 
+     /tmp/cceAlX61.s:278    .text:000000000000018c .L0 
+     /tmp/cceAlX61.s:279    .text:000000000000018c .L0 
+     /tmp/cceAlX61.s:280    .text:000000000000018c .L0 
+     /tmp/cceAlX61.s:282    .text:0000000000000190 .L0 
+GAS LISTING /tmp/cceAlX61.s 			page 17
+
+
+     /tmp/cceAlX61.s:285    .text:0000000000000190 .L0 
+     /tmp/cceAlX61.s:286    .text:0000000000000190 .L0 
+     /tmp/cceAlX61.s:288    .text:0000000000000194 .L0 
+     /tmp/cceAlX61.s:293    .text:000000000000019c .L0 
+     /tmp/cceAlX61.s:294    .text:000000000000019c .L0 
+     /tmp/cceAlX61.s:295    .text:000000000000019c .L0 
+     /tmp/cceAlX61.s:300    .text:00000000000001a8 .L0 
+     /tmp/cceAlX61.s:301    .text:00000000000001a8 .L0 
+     /tmp/cceAlX61.s:303    .text:00000000000001ac .L0 
+     /tmp/cceAlX61.s:305    .text:00000000000001b0 .L0 
+     /tmp/cceAlX61.s:307    .text:00000000000001b4 .L0 
+     /tmp/cceAlX61.s:308    .text:00000000000001b4 .L0 
+     /tmp/cceAlX61.s:310    .text:00000000000001b8 .L0 
+     /tmp/cceAlX61.s:313    .text:00000000000001bc .L0 
+     /tmp/cceAlX61.s:314    .text:00000000000001bc .L0 
+     /tmp/cceAlX61.s:316    .text:00000000000001c0 .L0 
+     /tmp/cceAlX61.s:317    .text:00000000000001c0 .L0 
+     /tmp/cceAlX61.s:323    .text:00000000000001c4 .L0 
+     /tmp/cceAlX61.s:325    .text:00000000000001cc .L0 
+     /tmp/cceAlX61.s:326    .text:00000000000001cc .L0 
+     /tmp/cceAlX61.s:328    .text:00000000000001d0 .L0 
+     /tmp/cceAlX61.s:329    .text:00000000000001d0 .L0 
+     /tmp/cceAlX61.s:331    .text:00000000000001d4 .L0 
+     /tmp/cceAlX61.s:333    .text:00000000000001d8 .L0 
+     /tmp/cceAlX61.s:335    .text:00000000000001dc .L0 
+     /tmp/cceAlX61.s:339    .text:00000000000001e0 .L0 
+     /tmp/cceAlX61.s:343    .text:00000000000001e0 .L0 
+     /tmp/cceAlX61.s:344    .text:00000000000001e0 .L0 
+     /tmp/cceAlX61.s:346    .text:00000000000001e4 .L0 
+     /tmp/cceAlX61.s:350    .text:00000000000001ec .L0 
+     /tmp/cceAlX61.s:356    .text:00000000000001ec _ZN9_fifoListnwEm
+     /tmp/cceAlX61.s:359    .text:00000000000001ec .L0 
+     /tmp/cceAlX61.s:361    .text:00000000000001ec .L0 
+     /tmp/cceAlX61.s:362    .text:00000000000001f0 .L0 
+     /tmp/cceAlX61.s:364    .text:00000000000001f4 .L0 
+     /tmp/cceAlX61.s:366    .text:00000000000001f8 .L0 
+     /tmp/cceAlX61.s:370    .text:00000000000001f8 .L0 
+     /tmp/cceAlX61.s:371    .text:00000000000001f8 .L0 
+     /tmp/cceAlX61.s:376    .text:0000000000000200 .L0 
+     /tmp/cceAlX61.s:380    .text:0000000000000204 .L0 
+     /tmp/cceAlX61.s:383    .text:000000000000020c .L0 
+     /tmp/cceAlX61.s:384    .text:000000000000020c .L0 
+     /tmp/cceAlX61.s:388    .text:000000000000021c .L0 
+     /tmp/cceAlX61.s:390    .text:0000000000000220 .L0 
+     /tmp/cceAlX61.s:391    .text:0000000000000220 .L0 
+     /tmp/cceAlX61.s:397    .text:0000000000000234 .L0 
+     /tmp/cceAlX61.s:398    .text:0000000000000234 .L0 
+     /tmp/cceAlX61.s:401    .text:0000000000000238 .L0 
+     /tmp/cceAlX61.s:405    .text:000000000000023c .L0 
+     /tmp/cceAlX61.s:406    .text:0000000000000240 .L0 
+     /tmp/cceAlX61.s:407    .text:0000000000000240 .L0 
+     /tmp/cceAlX61.s:408    .text:0000000000000240 .L0 
+     /tmp/cceAlX61.s:410    .text:0000000000000244 .L0 
+     /tmp/cceAlX61.s:414    .text:0000000000000248 .L0 
+     /tmp/cceAlX61.s:416    .text:0000000000000248 .L0 
+     /tmp/cceAlX61.s:419    .text:0000000000000254 .L0 
+     /tmp/cceAlX61.s:425    .text:0000000000000254 _ZN9_fifoListdlEPv
+GAS LISTING /tmp/cceAlX61.s 			page 18
+
+
+     /tmp/cceAlX61.s:428    .text:0000000000000254 .L0 
+     /tmp/cceAlX61.s:430    .text:0000000000000254 .L0 
+     /tmp/cceAlX61.s:431    .text:0000000000000258 .L0 
+     /tmp/cceAlX61.s:433    .text:000000000000025c .L0 
+     /tmp/cceAlX61.s:435    .text:0000000000000260 .L0 
+     /tmp/cceAlX61.s:437    .text:0000000000000260 .L0 
+     /tmp/cceAlX61.s:438    .text:0000000000000260 .L0 
+     /tmp/cceAlX61.s:444    .text:0000000000000270 .L0 
+     /tmp/cceAlX61.s:447    .text:0000000000000274 .L0 
+     /tmp/cceAlX61.s:448    .text:0000000000000274 .L0 
+     /tmp/cceAlX61.s:452    .text:000000000000027c .L0 
+     /tmp/cceAlX61.s:453    .text:0000000000000280 .L0 
+     /tmp/cceAlX61.s:454    .text:0000000000000280 .L0 
+     /tmp/cceAlX61.s:456    .text:0000000000000284 .L0 
+     /tmp/cceAlX61.s:458    .text:0000000000000288 .L0 
+     /tmp/cceAlX61.s:463    .text:0000000000000288 _GLOBAL__sub_I__ZN9_fifoList11insertAtEndEP7_thread
+     /tmp/cceAlX61.s:466    .text:0000000000000288 .L0 
+     /tmp/cceAlX61.s:467    .text:0000000000000288 .L0 
+     /tmp/cceAlX61.s:468    .text:000000000000028c .L0 
+     /tmp/cceAlX61.s:471    .text:0000000000000294 .L0 
+     /tmp/cceAlX61.s:472    .text:0000000000000294 .L0 
+     /tmp/cceAlX61.s:474    .text:0000000000000298 .L0 
+     /tmp/cceAlX61.s:476    .text:0000000000000298 .L0 
+     /tmp/cceAlX61.s:482    .text:00000000000002b0 .L0 
+     /tmp/cceAlX61.s:484    .text:00000000000002b4 .L0 
+     /tmp/cceAlX61.s:485    .text:00000000000002b4 .L0 
+     /tmp/cceAlX61.s:487    .text:00000000000002b8 .L0 
+     /tmp/cceAlX61.s:489    .text:00000000000002bc .L0 
+     /tmp/cceAlX61.s:497    .bss:0000000000000000 .LANCHOR0
+     /tmp/cceAlX61.s:500    .bss:0000000000000000 _ZL8allLists
+     /tmp/cceAlX61.s:504    .bss:0000000000000640 _ZL5isOcc
+     /tmp/cceAlX61.s:508    .bss:00000000000006c0 _ZL9isOccList
+     /tmp/cceAlX61.s:519    .text:00000000000002bc .L0 
+     /tmp/cceAlX61.s:48     .text:0000000000000040 .L0 
+     /tmp/cceAlX61.s:103    .text:0000000000000080 .L0 
+     /tmp/cceAlX61.s:110    .text:0000000000000094 .L0 
+     /tmp/cceAlX61.s:119    .text:00000000000000ac .L0 
+     /tmp/cceAlX61.s:136    .text:00000000000000c4 .L0 
+     /tmp/cceAlX61.s:239    .text:0000000000000148 .L0 
+     /tmp/cceAlX61.s:249    .text:000000000000015c .L0 
+     /tmp/cceAlX61.s:384    .text:000000000000020c .L0 
+     /tmp/cceAlX61.s:391    .text:0000000000000220 .L0 
+     /tmp/cceAlX61.s:416    .text:0000000000000248 .L0 
+     /tmp/cceAlX61.s:438    .text:0000000000000260 .L0 
+     /tmp/cceAlX61.s:31     .text:0000000000000020 .L7
+     /tmp/cceAlX61.s:23     .text:0000000000000014 .L1
+     /tmp/cceAlX61.s:45     .text:000000000000003c .L5
+     /tmp/cceAlX61.s:39     .text:0000000000000030 .L4
+     /tmp/cceAlX61.s:49     .text:0000000000000048 .L3
+     /tmp/cceAlX61.s:97     .text:0000000000000078 .L11
+     /tmp/cceAlX61.s:133    .text:00000000000000c4 .L12
+     /tmp/cceAlX61.s:93     .text:0000000000000074 .L10
+     /tmp/cceAlX61.s:122    .text:00000000000000b8 .L8
+     /tmp/cceAlX61.s:211    .text:0000000000000130 .L15
+     /tmp/cceAlX61.s:193    .text:0000000000000118 .L14
+     /tmp/cceAlX61.s:319    .text:00000000000001c4 .L20
+     /tmp/cceAlX61.s:338    .text:00000000000001e0 .L25
+GAS LISTING /tmp/cceAlX61.s 			page 19
+
+
+     /tmp/cceAlX61.s:311    .text:00000000000001bc .L23
+     /tmp/cceAlX61.s:378    .text:0000000000000204 .L29
+     /tmp/cceAlX61.s:413    .text:0000000000000248 .L30
+     /tmp/cceAlX61.s:374    .text:0000000000000200 .L28
+     /tmp/cceAlX61.s:402    .text:000000000000023c .L26
+     /tmp/cceAlX61.s:1478   .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+     /tmp/cceAlX61.s:2770   .debug_str:0000000000000459 .LASF80
+     /tmp/cceAlX61.s:2676   .debug_str:0000000000000147 .LASF81
+     /tmp/cceAlX61.s:2688   .debug_str:00000000000001a2 .LASF82
+     /tmp/cceAlX61.s:5      .text:0000000000000000 .Ltext0
+     /tmp/cceAlX61.s:516    .text:00000000000002bc .Letext0
+     /tmp/cceAlX61.s:2630   .debug_line:0000000000000000 .Ldebug_line0
+     /tmp/cceAlX61.s:2726   .debug_str:00000000000002c2 .LASF0
+     /tmp/cceAlX61.s:2732   .debug_str:00000000000002f0 .LASF1
+     /tmp/cceAlX61.s:2718   .debug_str:0000000000000278 .LASF2
+     /tmp/cceAlX61.s:2668   .debug_str:000000000000011d .LASF3
+     /tmp/cceAlX61.s:2692   .debug_str:00000000000001c9 .LASF4
+     /tmp/cceAlX61.s:2760   .debug_str:00000000000003f6 .LASF5
+     /tmp/cceAlX61.s:2648   .debug_str:000000000000006d .LASF6
+     /tmp/cceAlX61.s:2736   .debug_str:000000000000030a .LASF7
+     /tmp/cceAlX61.s:2724   .debug_str:00000000000002af .LASF8
+     /tmp/cceAlX61.s:2780   .debug_str:0000000000000550 .LASF9
+     /tmp/cceAlX61.s:2682   .debug_str:0000000000000171 .LASF10
+     /tmp/cceAlX61.s:2742   .debug_str:0000000000000351 .LASF11
+     /tmp/cceAlX61.s:2772   .debug_str:000000000000051d .LASF12
+     /tmp/cceAlX61.s:2650   .debug_str:0000000000000074 .LASF13
+     /tmp/cceAlX61.s:2636   .debug_str:000000000000000f .LASF14
+     /tmp/cceAlX61.s:2654   .debug_str:00000000000000a8 .LASF15
+     /tmp/cceAlX61.s:2754   .debug_str:00000000000003b4 .LASF16
+     /tmp/cceAlX61.s:2658   .debug_str:00000000000000c4 .LASF17
+     /tmp/cceAlX61.s:2632   .debug_str:0000000000000000 .LASF18
+     /tmp/cceAlX61.s:2646   .debug_str:0000000000000065 .LASF26
+     /tmp/cceAlX61.s:2730   .debug_str:00000000000002e2 .LASF83
+     /tmp/cceAlX61.s:2640   .debug_str:000000000000002c .LASF19
+     /tmp/cceAlX61.s:2702   .debug_str:000000000000020e .LASF20
+     /tmp/cceAlX61.s:2740   .debug_str:000000000000034b .LASF21
+     /tmp/cceAlX61.s:2796   .debug_str:00000000000005dd .LASF22
+     /tmp/cceAlX61.s:2734   .debug_str:0000000000000303 .LASF23
+     /tmp/cceAlX61.s:2698   .debug_str:00000000000001ee .LASF24
+     /tmp/cceAlX61.s:2710   .debug_str:0000000000000244 .LASF25
+     /tmp/cceAlX61.s:2690   .debug_str:00000000000001b9 .LASF27
+     /tmp/cceAlX61.s:2700   .debug_str:00000000000001f3 .LASF28
+     /tmp/cceAlX61.s:2790   .debug_str:00000000000005bc .LASF29
+     /tmp/cceAlX61.s:2756   .debug_str:00000000000003ca .LASF30
+     /tmp/cceAlX61.s:2762   .debug_str:0000000000000408 .LASF37
+     /tmp/cceAlX61.s:2694   .debug_str:00000000000001d0 .LASF39
+     /tmp/cceAlX61.s:2666   .debug_str:000000000000010d .LASF31
+     /tmp/cceAlX61.s:2738   .debug_str:000000000000031d .LASF32
+     /tmp/cceAlX61.s:2750   .debug_str:000000000000039a .LASF33
+     /tmp/cceAlX61.s:2652   .debug_str:0000000000000084 .LASF35
+     /tmp/cceAlX61.s:2794   .debug_str:00000000000005cf .LASF34
+     /tmp/cceAlX61.s:2686   .debug_str:0000000000000185 .LASF36
+     /tmp/cceAlX61.s:2670   .debug_str:0000000000000123 .LASF41
+     /tmp/cceAlX61.s:2764   .debug_str:0000000000000418 .LASF43
+     /tmp/cceAlX61.s:2712   .debug_str:000000000000024e .LASF38
+     /tmp/cceAlX61.s:2720   .debug_str:0000000000000286 .LASF40
+     /tmp/cceAlX61.s:2714   .debug_str:000000000000025c .LASF42
+GAS LISTING /tmp/cceAlX61.s 			page 20
+
+
+     /tmp/cceAlX61.s:2784   .debug_str:0000000000000585 .LASF44
+     /tmp/cceAlX61.s:2806   .debug_str:000000000000062b .LASF45
+     /tmp/cceAlX61.s:2704   .debug_str:0000000000000216 .LASF46
+     /tmp/cceAlX61.s:2678   .debug_str:000000000000015a .LASF47
+     /tmp/cceAlX61.s:2758   .debug_str:00000000000003da .LASF48
+     /tmp/cceAlX61.s:2680   .debug_str:0000000000000165 .LASF49
+     /tmp/cceAlX61.s:2768   .debug_str:000000000000043e .LASF50
+     /tmp/cceAlX61.s:2706   .debug_str:0000000000000230 .LASF51
+     /tmp/cceAlX61.s:2752   .debug_str:00000000000003af .LASF52
+     /tmp/cceAlX61.s:2802   .debug_str:000000000000061c .LASF53
+     /tmp/cceAlX61.s:2638   .debug_str:000000000000001f .LASF54
+     /tmp/cceAlX61.s:2664   .debug_str:00000000000000f8 .LASF55
+     /tmp/cceAlX61.s:2696   .debug_str:00000000000001e1 .LASF56
+     /tmp/cceAlX61.s:2716   .debug_str:000000000000026a .LASF64
+     /tmp/cceAlX61.s:2804   .debug_str:0000000000000621 .LASF57
+     /tmp/cceAlX61.s:2800   .debug_str:0000000000000616 .LASF58
+     /tmp/cceAlX61.s:2788   .debug_str:00000000000005b7 .LASF59
+     /tmp/cceAlX61.s:2776   .debug_str:0000000000000535 .LASF60
+     /tmp/cceAlX61.s:2662   .debug_str:00000000000000ec .LASF61
+     /tmp/cceAlX61.s:2782   .debug_str:0000000000000560 .LASF62
+     /tmp/cceAlX61.s:2656   .debug_str:00000000000000b4 .LASF84
+     /tmp/cceAlX61.s:2642   .debug_str:0000000000000032 .LASF85
+     /tmp/cceAlX61.s:2660   .debug_str:00000000000000da .LASF63
+     /tmp/cceAlX61.s:2728   .debug_str:00000000000002cf .LASF65
+     /tmp/cceAlX61.s:2774   .debug_str:000000000000052c .LASF66
+     /tmp/cceAlX61.s:2674   .debug_str:0000000000000142 .LASF67
+     /tmp/cceAlX61.s:2684   .debug_str:000000000000017f .LASF68
+     /tmp/cceAlX61.s:2778   .debug_str:0000000000000547 .LASF69
+     /tmp/cceAlX61.s:2722   .debug_str:00000000000002a5 .LASF70
+     /tmp/cceAlX61.s:2798   .debug_str:00000000000005e2 .LASF71
+     /tmp/cceAlX61.s:464    .text:0000000000000288 .LFB16
+     /tmp/cceAlX61.s:490    .text:00000000000002bc .LFE16
+     /tmp/cceAlX61.s:480    .text:00000000000002ac .LVL42
+     /tmp/cceAlX61.s:2744   .debug_str:0000000000000360 .LASF72
+     /tmp/cceAlX61.s:9      .text:0000000000000000 .LFB15
+     /tmp/cceAlX61.s:70     .text:0000000000000060 .LFE15
+     /tmp/cceAlX61.s:2708   .debug_str:0000000000000235 .LASF73
+     /tmp/cceAlX61.s:2746   .debug_str:000000000000038a .LASF74
+     /tmp/cceAlX61.s:53     .text:000000000000004c .LBB10
+     /tmp/cceAlX61.s:63     .text:0000000000000054 .LBE10
+     /tmp/cceAlX61.s:2345   .debug_loc:0000000000000000 .LLST0
+     /tmp/cceAlX61.s:426    .text:0000000000000254 .LFB14
+     /tmp/cceAlX61.s:459    .text:0000000000000288 .LFE14
+     /tmp/cceAlX61.s:2352   .debug_loc:0000000000000023 .LLST13
+     /tmp/cceAlX61.s:2792   .debug_str:00000000000005c9 .LASF75
+     /tmp/cceAlX61.s:2375   .debug_loc:000000000000007b .LLST14
+     /tmp/cceAlX61.s:357    .text:00000000000001ec .LFB13
+     /tmp/cceAlX61.s:420    .text:0000000000000254 .LFE13
+     /tmp/cceAlX61.s:2766   .debug_str:0000000000000439 .LASF76
+     /tmp/cceAlX61.s:2394   .debug_loc:00000000000000b9 .LLST11
+     /tmp/cceAlX61.s:369    .text:00000000000001f8 .LBB19
+     /tmp/cceAlX61.s:403    .text:000000000000023c .LBE19
+     /tmp/cceAlX61.s:2419   .debug_loc:000000000000011b .LLST12
+     /tmp/cceAlX61.s:227    .text:000000000000013c .LFB12
+     /tmp/cceAlX61.s:261    .text:0000000000000178 .LFE12
+     /tmp/cceAlX61.s:2435   .debug_loc:0000000000000165 .LLST7
+     /tmp/cceAlX61.s:2458   .debug_loc:00000000000001bd .LLST8
+GAS LISTING /tmp/cceAlX61.s 			page 21
+
+
+     /tmp/cceAlX61.s:76     .text:0000000000000060 .LFB11
+     /tmp/cceAlX61.s:140    .text:00000000000000d0 .LFE11
+     /tmp/cceAlX61.s:2477   .debug_loc:0000000000000202 .LLST1
+     /tmp/cceAlX61.s:88     .text:000000000000006c .LBB12
+     /tmp/cceAlX61.s:123    .text:00000000000000b8 .LBE12
+     /tmp/cceAlX61.s:2502   .debug_loc:0000000000000264 .LLST2
+     /tmp/cceAlX61.s:267    .text:0000000000000178 .LFB10
+     /tmp/cceAlX61.s:351    .text:00000000000001ec .LFE10
+     /tmp/cceAlX61.s:2748   .debug_str:0000000000000395 .LASF77
+     /tmp/cceAlX61.s:2518   .debug_loc:00000000000002ae .LLST9
+     /tmp/cceAlX61.s:2622   .debug_ranges:0000000000000000 .Ldebug_ranges0
+     /tmp/cceAlX61.s:2540   .debug_loc:000000000000030d .LLST10
+     /tmp/cceAlX61.s:298    .text:00000000000001a8 .LVL26
+     /tmp/cceAlX61.s:146    .text:00000000000000d0 .LFB9
+     /tmp/cceAlX61.s:221    .text:000000000000013c .LFE9
+     /tmp/cceAlX61.s:2551   .debug_loc:0000000000000343 .LLST3
+     /tmp/cceAlX61.s:2573   .debug_loc:00000000000003a2 .LLST4
+     /tmp/cceAlX61.s:170    .text:00000000000000fc .LBB13
+     /tmp/cceAlX61.s:180    .text:0000000000000104 .LBE13
+     /tmp/cceAlX61.s:2595   .debug_loc:0000000000000401 .LLST5
+     /tmp/cceAlX61.s:2602   .debug_loc:0000000000000424 .LLST6
+     /tmp/cceAlX61.s:169    .text:00000000000000fc .LVL13
+     /tmp/cceAlX61.s:2644   .debug_str:0000000000000053 .LASF78
+     /tmp/cceAlX61.s:2634   .debug_str:0000000000000009 .LASF86
+     /tmp/cceAlX61.s:2786   .debug_str:00000000000005a2 .LASF79
+     /tmp/cceAlX61.s:2672   .debug_str:0000000000000135 .LASF87
+     /tmp/cceAlX61.s:52     .text:000000000000004c .LVL1
+     /tmp/cceAlX61.s:61     .text:0000000000000054 .LVL2
+     /tmp/cceAlX61.s:429    .text:0000000000000254 .LVL37
+     /tmp/cceAlX61.s:440    .text:000000000000026c .LVL38
+     /tmp/cceAlX61.s:442    .text:0000000000000270 .LVL39
+     /tmp/cceAlX61.s:445    .text:0000000000000274 .LVL40
+     /tmp/cceAlX61.s:449    .text:0000000000000278 .LVL41
+     /tmp/cceAlX61.s:360    .text:00000000000001ec .LVL29
+     /tmp/cceAlX61.s:392    .text:0000000000000228 .LVL33
+     /tmp/cceAlX61.s:412    .text:0000000000000248 .LVL35
+     /tmp/cceAlX61.s:417    .text:0000000000000250 .LVL36
+     /tmp/cceAlX61.s:368    .text:00000000000001f8 .LVL30
+     /tmp/cceAlX61.s:373    .text:0000000000000200 .LVL31
+     /tmp/cceAlX61.s:399    .text:0000000000000238 .LVL34
+     /tmp/cceAlX61.s:230    .text:000000000000013c .LVL18
+     /tmp/cceAlX61.s:241    .text:0000000000000154 .LVL19
+     /tmp/cceAlX61.s:243    .text:0000000000000158 .LVL20
+     /tmp/cceAlX61.s:246    .text:000000000000015c .LVL21
+     /tmp/cceAlX61.s:251    .text:0000000000000168 .LVL22
+     /tmp/cceAlX61.s:79     .text:0000000000000060 .LVL3
+     /tmp/cceAlX61.s:120    .text:00000000000000b4 .LVL8
+     /tmp/cceAlX61.s:132    .text:00000000000000c4 .LVL9
+     /tmp/cceAlX61.s:137    .text:00000000000000cc .LVL10
+     /tmp/cceAlX61.s:87     .text:000000000000006c .LVL4
+     /tmp/cceAlX61.s:92     .text:0000000000000074 .LVL5
+     /tmp/cceAlX61.s:117    .text:00000000000000ac .LVL7
+     /tmp/cceAlX61.s:270    .text:0000000000000178 .LVL23
+     /tmp/cceAlX61.s:296    .text:00000000000001a0 .LVL25
+     /tmp/cceAlX61.s:318    .text:00000000000001c4 .LVL27
+     /tmp/cceAlX61.s:337    .text:00000000000001e0 .LVL28
+     /tmp/cceAlX61.s:292    .text:000000000000019c .LVL24
+GAS LISTING /tmp/cceAlX61.s 			page 22
+
+
+     /tmp/cceAlX61.s:149    .text:00000000000000d0 .LVL11
+     /tmp/cceAlX61.s:167    .text:00000000000000f4 .LVL12
+     /tmp/cceAlX61.s:203    .text:0000000000000124 .LVL15
+     /tmp/cceAlX61.s:210    .text:0000000000000130 .LVL17
+     /tmp/cceAlX61.s:206    .text:0000000000000128 .LVL16
+     /tmp/cceAlX61.s:178    .text:0000000000000104 .LVL14
+     /tmp/cceAlX61.s:520    .debug_info:0000000000000000 .Ldebug_info0
+     /tmp/cceAlX61.s:290    .text:000000000000019c .LBB16
+     /tmp/cceAlX61.s:320    .text:00000000000001c4 .LBE16
+     /tmp/cceAlX61.s:341    .text:00000000000001e0 .LBB17
+     /tmp/cceAlX61.s:348    .text:00000000000001ec .LBE17
+
+NO UNDEFINED SYMBOLS

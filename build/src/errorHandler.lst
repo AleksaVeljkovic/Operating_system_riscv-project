@@ -1,0 +1,460 @@
+GAS LISTING /tmp/ccl5IYHt.s 			page 1
+
+
+   1              		.file	"errorHandler.c"
+   2              		.option nopic
+   3              		.option norelax
+   4              		.text
+   5              	.Ltext0:
+   6              		.cfi_sections	.debug_frame
+   7              		.section	.rodata.str1.8,"aMS",@progbits,1
+   8              		.align	3
+   9              	.LC0:
+  10 0000 496C6567 		.string	"Ilegalna Instrukcija  scause = 0x02\n"
+  10      616C6E61 
+  10      20496E73 
+  10      7472756B 
+  10      63696A61 
+  11 0025 000000   		.align	3
+  12              	.LC1:
+  13 0028 4E65646F 		.string	"Nedozvoljena adresa citanja  scause = 0x05\n"
+  13      7A766F6C 
+  13      6A656E61 
+  13      20616472 
+  13      65736120 
+  14 0054 00000000 		.align	3
+  15              	.LC2:
+  16 0058 4E65646F 		.string	"Nedozvoljena adresa upisa  scause = 0x07\n"
+  16      7A766F6C 
+  16      6A656E61 
+  16      20616472 
+  16      65736120 
+  17              		.text
+  18              		.align	2
+  19              		.globl	errorHandler
+  21              	errorHandler:
+  22              	.LFB0:
+  23              		.file 1 "src/errorHandler.c"
+   1:src/errorHandler.c **** #include "../lib/console.h"
+   2:src/errorHandler.c **** #include "../h/errorHandler.h"
+   3:src/errorHandler.c **** #include "../lib/hw.h"
+   4:src/errorHandler.c **** 
+   5:src/errorHandler.c **** void errorHandler(){
+  24              		.loc 1 5 20
+  25              		.cfi_startproc
+  26 0000 130101FD 		addi	sp,sp,-48
+  27              		.cfi_def_cfa_offset 48
+  28 0004 23341102 		sd	ra,40(sp)
+  29 0008 23308102 		sd	s0,32(sp)
+  30 000c 233C9100 		sd	s1,24(sp)
+  31              		.cfi_offset 1, -8
+  32              		.cfi_offset 8, -16
+  33              		.cfi_offset 9, -24
+  34 0010 13040103 		addi	s0,sp,48
+  35              		.cfi_def_cfa 8, 0
+   6:src/errorHandler.c **** 
+   7:src/errorHandler.c **** 
+   8:src/errorHandler.c ****     uint64 volatile scause;
+  36              		.loc 1 8 5
+   9:src/errorHandler.c ****     __asm__ volatile ("csrr %[scause], scause" : [scause] "=r"(scause));
+  37              		.loc 1 9 5
+GAS LISTING /tmp/ccl5IYHt.s 			page 2
+
+
+  38              	#APP
+  39              	# 9 "src/errorHandler.c" 1
+  10              	
+  40              		csrr a5, scause
+  41              	# 0 "" 2
+  42              	#NO_APP
+  43 0018 233CF4FC 		sd	a5,-40(s0)
+  11:src/errorHandler.c ****     if(scause == 0x02) {            // ILEGALNA INSTRUKCIJA
+  44              		.loc 1 11 5
+  45              		.loc 1 11 15 is_stmt 0
+  46 001c 033784FD 		ld	a4,-40(s0)
+  47              		.loc 1 11 7
+  48 0020 93072000 		li	a5,2
+  49 0024 6300F702 		beq	a4,a5,.L12
+  12:src/errorHandler.c **** 
+  13:src/errorHandler.c ****         __putc('\n');
+  14:src/errorHandler.c ****         char *string = "Ilegalna Instrukcija  scause = 0x02\n";
+  15:src/errorHandler.c **** 
+  16:src/errorHandler.c ****         while (*string != '\n')
+  17:src/errorHandler.c ****         {
+  18:src/errorHandler.c ****             __putc(*string);
+  19:src/errorHandler.c ****             string++;
+  20:src/errorHandler.c ****         }
+  21:src/errorHandler.c ****         __putc('\n');
+  22:src/errorHandler.c ****     }
+  23:src/errorHandler.c **** 
+  24:src/errorHandler.c ****     else if(scause == 0x05){        // NEDOZVOLJENA ADRESA CITANJA
+  50              		.loc 1 24 10 is_stmt 1
+  51              		.loc 1 24 20 is_stmt 0
+  52 0028 033784FD 		ld	a4,-40(s0)
+  53              		.loc 1 24 12
+  54 002c 93075000 		li	a5,5
+  55 0030 630AF704 		beq	a4,a5,.L13
+  25:src/errorHandler.c **** 
+  26:src/errorHandler.c ****         __putc('\n');
+  27:src/errorHandler.c ****         char *string = "Nedozvoljena adresa citanja  scause = 0x05\n";
+  28:src/errorHandler.c **** 
+  29:src/errorHandler.c ****         while (*string != '\n')
+  30:src/errorHandler.c ****         {
+  31:src/errorHandler.c ****             __putc(*string);
+  32:src/errorHandler.c ****             string++;
+  33:src/errorHandler.c ****         }
+  34:src/errorHandler.c ****         __putc('\n');
+  35:src/errorHandler.c ****     }
+  36:src/errorHandler.c **** 
+  37:src/errorHandler.c ****     else if(scause == 0x07){        // NEDOZVOLJENA ADRESA UPISA
+  56              		.loc 1 37 10 is_stmt 1
+  57              		.loc 1 37 20 is_stmt 0
+  58 0034 033784FD 		ld	a4,-40(s0)
+  59              		.loc 1 37 12
+  60 0038 93077000 		li	a5,7
+  61 003c 6304F708 		beq	a4,a5,.L14
+  62              	.L5:
+  38:src/errorHandler.c **** 
+  39:src/errorHandler.c ****         __putc('\n');
+  40:src/errorHandler.c ****         char *string = "Nedozvoljena adresa upisa  scause = 0x07\n";
+  41:src/errorHandler.c **** 
+GAS LISTING /tmp/ccl5IYHt.s 			page 3
+
+
+  42:src/errorHandler.c ****         while (*string != '\n')
+  43:src/errorHandler.c ****         {
+  44:src/errorHandler.c ****             __putc(*string);
+  45:src/errorHandler.c ****             string++;
+  46:src/errorHandler.c ****         }
+  47:src/errorHandler.c ****         __putc('\n');
+  48:src/errorHandler.c ****     }
+  49:src/errorHandler.c **** 
+  50:src/errorHandler.c **** //    else if(scause == 0x8000000000000009){      // SPOLJASNI HARDVERSKI PREKID
+  51:src/errorHandler.c **** //        console_handler();
+  52:src/errorHandler.c **** //        return;
+  53:src/errorHandler.c **** //    }
+  54:src/errorHandler.c **** //
+  55:src/errorHandler.c **** //    else if(scause == 0x8000000000000001){      // SOFTVERSKI PREKID IZ TRECEG REZIMA
+  56:src/errorHandler.c **** //
+  57:src/errorHandler.c **** //    }
+  58:src/errorHandler.c **** 
+  59:src/errorHandler.c ****     while(1){
+  63              		.loc 1 59 5 is_stmt 1 discriminator 1
+  60:src/errorHandler.c **** 
+  61:src/errorHandler.c ****     }
+  64              		.loc 1 61 5 discriminator 1
+  59:src/errorHandler.c **** 
+  65              		.loc 1 59 10 discriminator 1
+  66 0040 6F000000 		j	.L5
+  67              	.L12:
+  68              	.LBB2:
+  13:src/errorHandler.c ****         char *string = "Ilegalna Instrukcija  scause = 0x02\n";
+  69              		.loc 1 13 9
+  70 0044 1305A000 		li	a0,10
+  71 0048 97000000 		call	__putc
+  71      E7800000 
+  72              	.LVL0:
+  14:src/errorHandler.c **** 
+  73              		.loc 1 14 9
+  16:src/errorHandler.c ****         {
+  74              		.loc 1 16 9
+  14:src/errorHandler.c **** 
+  75              		.loc 1 14 15 is_stmt 0
+  76 0050 97040000 		lla	s1,.LC0
+  76      93840400 
+  16:src/errorHandler.c ****         {
+  77              		.loc 1 16 15
+  78 0058 6F000001 		j	.L3
+  79              	.LVL1:
+  80              	.L4:
+  18:src/errorHandler.c ****             string++;
+  81              		.loc 1 18 13 is_stmt 1
+  82 005c 97000000 		call	__putc
+  82      E7800000 
+  83              	.LVL2:
+  19:src/errorHandler.c ****         }
+  84              		.loc 1 19 13
+  19:src/errorHandler.c ****         }
+  85              		.loc 1 19 19 is_stmt 0
+  86 0064 93841400 		addi	s1,s1,1
+  87              	.LVL3:
+GAS LISTING /tmp/ccl5IYHt.s 			page 4
+
+
+  88              	.L3:
+  16:src/errorHandler.c ****         {
+  89              		.loc 1 16 15 is_stmt 1
+  16:src/errorHandler.c ****         {
+  90              		.loc 1 16 16 is_stmt 0
+  91 0068 03C50400 		lbu	a0,0(s1)
+  16:src/errorHandler.c ****         {
+  92              		.loc 1 16 15
+  93 006c 9307A000 		li	a5,10
+  94 0070 E316F5FE 		bne	a0,a5,.L4
+  21:src/errorHandler.c ****     }
+  95              		.loc 1 21 9 is_stmt 1
+  96 0074 1305A000 		li	a0,10
+  97 0078 97000000 		call	__putc
+  97      E7800000 
+  98              	.LVL4:
+  99              	.LBE2:
+ 100 0080 6FF01FFC 		j	.L5
+ 101              	.LVL5:
+ 102              	.L13:
+ 103              	.LBB3:
+  26:src/errorHandler.c ****         char *string = "Nedozvoljena adresa citanja  scause = 0x05\n";
+ 104              		.loc 1 26 9
+ 105 0084 1305A000 		li	a0,10
+ 106 0088 97000000 		call	__putc
+ 106      E7800000 
+ 107              	.LVL6:
+  27:src/errorHandler.c **** 
+ 108              		.loc 1 27 9
+  29:src/errorHandler.c ****         {
+ 109              		.loc 1 29 9
+  27:src/errorHandler.c **** 
+ 110              		.loc 1 27 15 is_stmt 0
+ 111 0090 97040000 		lla	s1,.LC1
+ 111      93840400 
+  29:src/errorHandler.c ****         {
+ 112              		.loc 1 29 15
+ 113 0098 6F000001 		j	.L7
+ 114              	.LVL7:
+ 115              	.L8:
+  31:src/errorHandler.c ****             string++;
+ 116              		.loc 1 31 13 is_stmt 1
+ 117 009c 97000000 		call	__putc
+ 117      E7800000 
+ 118              	.LVL8:
+  32:src/errorHandler.c ****         }
+ 119              		.loc 1 32 13
+  32:src/errorHandler.c ****         }
+ 120              		.loc 1 32 19 is_stmt 0
+ 121 00a4 93841400 		addi	s1,s1,1
+ 122              	.LVL9:
+ 123              	.L7:
+  29:src/errorHandler.c ****         {
+ 124              		.loc 1 29 15 is_stmt 1
+  29:src/errorHandler.c ****         {
+ 125              		.loc 1 29 16 is_stmt 0
+ 126 00a8 03C50400 		lbu	a0,0(s1)
+GAS LISTING /tmp/ccl5IYHt.s 			page 5
+
+
+  29:src/errorHandler.c ****         {
+ 127              		.loc 1 29 15
+ 128 00ac 9307A000 		li	a5,10
+ 129 00b0 E316F5FE 		bne	a0,a5,.L8
+  34:src/errorHandler.c ****     }
+ 130              		.loc 1 34 9 is_stmt 1
+ 131 00b4 1305A000 		li	a0,10
+ 132 00b8 97000000 		call	__putc
+ 132      E7800000 
+ 133              	.LVL10:
+ 134              	.LBE3:
+ 135 00c0 6FF01FF8 		j	.L5
+ 136              	.LVL11:
+ 137              	.L14:
+ 138              	.LBB4:
+  39:src/errorHandler.c ****         char *string = "Nedozvoljena adresa upisa  scause = 0x07\n";
+ 139              		.loc 1 39 9
+ 140 00c4 1305A000 		li	a0,10
+ 141 00c8 97000000 		call	__putc
+ 141      E7800000 
+ 142              	.LVL12:
+  40:src/errorHandler.c **** 
+ 143              		.loc 1 40 9
+  42:src/errorHandler.c ****         {
+ 144              		.loc 1 42 9
+  40:src/errorHandler.c **** 
+ 145              		.loc 1 40 15 is_stmt 0
+ 146 00d0 97040000 		lla	s1,.LC2
+ 146      93840400 
+  42:src/errorHandler.c ****         {
+ 147              		.loc 1 42 15
+ 148 00d8 6F000001 		j	.L9
+ 149              	.LVL13:
+ 150              	.L10:
+  44:src/errorHandler.c ****             string++;
+ 151              		.loc 1 44 13 is_stmt 1
+ 152 00dc 97000000 		call	__putc
+ 152      E7800000 
+ 153              	.LVL14:
+  45:src/errorHandler.c ****         }
+ 154              		.loc 1 45 13
+  45:src/errorHandler.c ****         }
+ 155              		.loc 1 45 19 is_stmt 0
+ 156 00e4 93841400 		addi	s1,s1,1
+ 157              	.LVL15:
+ 158              	.L9:
+  42:src/errorHandler.c ****         {
+ 159              		.loc 1 42 15 is_stmt 1
+  42:src/errorHandler.c ****         {
+ 160              		.loc 1 42 16 is_stmt 0
+ 161 00e8 03C50400 		lbu	a0,0(s1)
+  42:src/errorHandler.c ****         {
+ 162              		.loc 1 42 15
+ 163 00ec 9307A000 		li	a5,10
+ 164 00f0 E316F5FE 		bne	a0,a5,.L10
+  47:src/errorHandler.c ****     }
+ 165              		.loc 1 47 9 is_stmt 1
+GAS LISTING /tmp/ccl5IYHt.s 			page 6
+
+
+ 166 00f4 1305A000 		li	a0,10
+ 167 00f8 97000000 		call	__putc
+ 167      E7800000 
+ 168              	.LVL16:
+ 169 0100 6FF01FF4 		j	.L5
+ 170              	.LBE4:
+ 171              		.cfi_endproc
+ 172              	.LFE0:
+ 174              	.Letext0:
+ 175              		.file 2 "src/../lib/hw.h"
+ 176              		.file 3 "src/../lib/console.h"
+GAS LISTING /tmp/ccl5IYHt.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 errorHandler.c
+     /tmp/ccl5IYHt.s:21     .text:0000000000000000 errorHandler
+     /tmp/ccl5IYHt.s:25     .text:0000000000000000 .L0 
+     /tmp/ccl5IYHt.s:26     .text:0000000000000000 .L0 
+     /tmp/ccl5IYHt.s:27     .text:0000000000000004 .L0 
+     /tmp/ccl5IYHt.s:31     .text:0000000000000010 .L0 
+     /tmp/ccl5IYHt.s:32     .text:0000000000000010 .L0 
+     /tmp/ccl5IYHt.s:33     .text:0000000000000010 .L0 
+     /tmp/ccl5IYHt.s:35     .text:0000000000000014 .L0 
+     /tmp/ccl5IYHt.s:37     .text:0000000000000014 .L0 
+  src/errorHandler.c:9      .text:0000000000000014 .L0 
+     /tmp/ccl5IYHt.s:45     .text:000000000000001c .L0 
+     /tmp/ccl5IYHt.s:46     .text:000000000000001c .L0 
+     /tmp/ccl5IYHt.s:48     .text:0000000000000020 .L0 
+     /tmp/ccl5IYHt.s:51     .text:0000000000000028 .L0 
+     /tmp/ccl5IYHt.s:52     .text:0000000000000028 .L0 
+     /tmp/ccl5IYHt.s:54     .text:000000000000002c .L0 
+     /tmp/ccl5IYHt.s:57     .text:0000000000000034 .L0 
+     /tmp/ccl5IYHt.s:58     .text:0000000000000034 .L0 
+     /tmp/ccl5IYHt.s:60     .text:0000000000000038 .L0 
+     /tmp/ccl5IYHt.s:64     .text:0000000000000040 .L0 
+     /tmp/ccl5IYHt.s:65     .text:0000000000000040 .L0 
+     /tmp/ccl5IYHt.s:66     .text:0000000000000040 .L0 
+     /tmp/ccl5IYHt.s:70     .text:0000000000000044 .L0 
+     /tmp/ccl5IYHt.s:74     .text:0000000000000050 .L0 
+     /tmp/ccl5IYHt.s:75     .text:0000000000000050 .L0 
+     /tmp/ccl5IYHt.s:76     .text:0000000000000050 .L0 
+     /tmp/ccl5IYHt.s:78     .text:0000000000000058 .L0 
+     /tmp/ccl5IYHt.s:82     .text:000000000000005c .L0 
+     /tmp/ccl5IYHt.s:85     .text:0000000000000064 .L0 
+     /tmp/ccl5IYHt.s:86     .text:0000000000000064 .L0 
+     /tmp/ccl5IYHt.s:90     .text:0000000000000068 .L0 
+     /tmp/ccl5IYHt.s:91     .text:0000000000000068 .L0 
+     /tmp/ccl5IYHt.s:93     .text:000000000000006c .L0 
+     /tmp/ccl5IYHt.s:96     .text:0000000000000074 .L0 
+     /tmp/ccl5IYHt.s:105    .text:0000000000000084 .L0 
+     /tmp/ccl5IYHt.s:109    .text:0000000000000090 .L0 
+     /tmp/ccl5IYHt.s:110    .text:0000000000000090 .L0 
+     /tmp/ccl5IYHt.s:111    .text:0000000000000090 .L0 
+     /tmp/ccl5IYHt.s:113    .text:0000000000000098 .L0 
+     /tmp/ccl5IYHt.s:117    .text:000000000000009c .L0 
+     /tmp/ccl5IYHt.s:120    .text:00000000000000a4 .L0 
+     /tmp/ccl5IYHt.s:121    .text:00000000000000a4 .L0 
+     /tmp/ccl5IYHt.s:125    .text:00000000000000a8 .L0 
+     /tmp/ccl5IYHt.s:126    .text:00000000000000a8 .L0 
+     /tmp/ccl5IYHt.s:128    .text:00000000000000ac .L0 
+     /tmp/ccl5IYHt.s:131    .text:00000000000000b4 .L0 
+     /tmp/ccl5IYHt.s:140    .text:00000000000000c4 .L0 
+     /tmp/ccl5IYHt.s:144    .text:00000000000000d0 .L0 
+     /tmp/ccl5IYHt.s:145    .text:00000000000000d0 .L0 
+     /tmp/ccl5IYHt.s:146    .text:00000000000000d0 .L0 
+     /tmp/ccl5IYHt.s:148    .text:00000000000000d8 .L0 
+     /tmp/ccl5IYHt.s:152    .text:00000000000000dc .L0 
+     /tmp/ccl5IYHt.s:155    .text:00000000000000e4 .L0 
+     /tmp/ccl5IYHt.s:156    .text:00000000000000e4 .L0 
+     /tmp/ccl5IYHt.s:160    .text:00000000000000e8 .L0 
+GAS LISTING /tmp/ccl5IYHt.s 			page 8
+
+
+     /tmp/ccl5IYHt.s:161    .text:00000000000000e8 .L0 
+     /tmp/ccl5IYHt.s:163    .text:00000000000000ec .L0 
+     /tmp/ccl5IYHt.s:166    .text:00000000000000f4 .L0 
+     /tmp/ccl5IYHt.s:171    .text:0000000000000104 .L0 
+     /tmp/ccl5IYHt.s:177    .text:0000000000000104 .L0 
+                     .debug_frame:0000000000000000 .L0 
+     /tmp/ccl5IYHt.s:9      .rodata.str1.8:0000000000000000 .LC0
+     /tmp/ccl5IYHt.s:76     .text:0000000000000050 .L0 
+     /tmp/ccl5IYHt.s:12     .rodata.str1.8:0000000000000028 .LC1
+     /tmp/ccl5IYHt.s:111    .text:0000000000000090 .L0 
+     /tmp/ccl5IYHt.s:15     .rodata.str1.8:0000000000000058 .LC2
+     /tmp/ccl5IYHt.s:146    .text:00000000000000d0 .L0 
+     /tmp/ccl5IYHt.s:67     .text:0000000000000044 .L12
+     /tmp/ccl5IYHt.s:102    .text:0000000000000084 .L13
+     /tmp/ccl5IYHt.s:137    .text:00000000000000c4 .L14
+     /tmp/ccl5IYHt.s:62     .text:0000000000000040 .L5
+     /tmp/ccl5IYHt.s:88     .text:0000000000000068 .L3
+     /tmp/ccl5IYHt.s:80     .text:000000000000005c .L4
+     /tmp/ccl5IYHt.s:123    .text:00000000000000a8 .L7
+     /tmp/ccl5IYHt.s:115    .text:000000000000009c .L8
+     /tmp/ccl5IYHt.s:158    .text:00000000000000e8 .L9
+     /tmp/ccl5IYHt.s:150    .text:00000000000000dc .L10
+     /tmp/ccl5IYHt.s:437    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+     /tmp/ccl5IYHt.s:803    .debug_str:0000000000000154 .LASF20
+     /tmp/ccl5IYHt.s:765    .debug_str:0000000000000039 .LASF21
+     /tmp/ccl5IYHt.s:761    .debug_str:0000000000000014 .LASF22
+     /tmp/ccl5IYHt.s:5      .text:0000000000000000 .Ltext0
+     /tmp/ccl5IYHt.s:174    .text:0000000000000104 .Letext0
+     /tmp/ccl5IYHt.s:755    .debug_line:0000000000000000 .Ldebug_line0
+     /tmp/ccl5IYHt.s:759    .debug_str:0000000000000007 .LASF0
+     /tmp/ccl5IYHt.s:795    .debug_str:0000000000000112 .LASF1
+     /tmp/ccl5IYHt.s:783    .debug_str:00000000000000af .LASF2
+     /tmp/ccl5IYHt.s:777    .debug_str:000000000000008f .LASF4
+     /tmp/ccl5IYHt.s:773    .debug_str:000000000000006a .LASF3
+     /tmp/ccl5IYHt.s:767    .debug_str:000000000000004c .LASF5
+     /tmp/ccl5IYHt.s:775    .debug_str:000000000000007c .LASF6
+     /tmp/ccl5IYHt.s:793    .debug_str:00000000000000ff .LASF7
+     /tmp/ccl5IYHt.s:801    .debug_str:0000000000000144 .LASF8
+     /tmp/ccl5IYHt.s:763    .debug_str:000000000000002b .LASF9
+     /tmp/ccl5IYHt.s:785    .debug_str:00000000000000bd .LASF10
+     /tmp/ccl5IYHt.s:799    .debug_str:0000000000000135 .LASF11
+     /tmp/ccl5IYHt.s:769    .debug_str:0000000000000053 .LASF12
+     /tmp/ccl5IYHt.s:797    .debug_str:0000000000000125 .LASF13
+     /tmp/ccl5IYHt.s:781    .debug_str:00000000000000a3 .LASF14
+     /tmp/ccl5IYHt.s:791    .debug_str:00000000000000e9 .LASF15
+     /tmp/ccl5IYHt.s:789    .debug_str:00000000000000d3 .LASF16
+     /tmp/ccl5IYHt.s:779    .debug_str:0000000000000096 .LASF23
+     /tmp/ccl5IYHt.s:22     .text:0000000000000000 .LFB0
+     /tmp/ccl5IYHt.s:172    .text:0000000000000104 .LFE0
+     /tmp/ccl5IYHt.s:771    .debug_str:0000000000000063 .LASF17
+     /tmp/ccl5IYHt.s:68     .text:0000000000000044 .LBB2
+     /tmp/ccl5IYHt.s:99     .text:0000000000000080 .LBE2
+     /tmp/ccl5IYHt.s:757    .debug_str:0000000000000000 .LASF18
+     /tmp/ccl5IYHt.s:703    .debug_loc:0000000000000000 .LLST0
+     /tmp/ccl5IYHt.s:72     .text:0000000000000050 .LVL0
+     /tmp/ccl5IYHt.s:83     .text:0000000000000064 .LVL2
+     /tmp/ccl5IYHt.s:98     .text:0000000000000080 .LVL4
+GAS LISTING /tmp/ccl5IYHt.s 			page 9
+
+
+     /tmp/ccl5IYHt.s:103    .text:0000000000000084 .LBB3
+     /tmp/ccl5IYHt.s:134    .text:00000000000000c0 .LBE3
+     /tmp/ccl5IYHt.s:716    .debug_loc:000000000000003f .LLST1
+     /tmp/ccl5IYHt.s:107    .text:0000000000000090 .LVL6
+     /tmp/ccl5IYHt.s:118    .text:00000000000000a4 .LVL8
+     /tmp/ccl5IYHt.s:133    .text:00000000000000c0 .LVL10
+     /tmp/ccl5IYHt.s:138    .text:00000000000000c4 .LBB4
+     /tmp/ccl5IYHt.s:170    .text:0000000000000104 .LBE4
+     /tmp/ccl5IYHt.s:729    .debug_loc:000000000000007e .LLST2
+     /tmp/ccl5IYHt.s:142    .text:00000000000000d0 .LVL12
+     /tmp/ccl5IYHt.s:153    .text:00000000000000e4 .LVL14
+     /tmp/ccl5IYHt.s:168    .text:0000000000000100 .LVL16
+     /tmp/ccl5IYHt.s:805    .debug_str:00000000000001f2 .LASF19
+     /tmp/ccl5IYHt.s:787    .debug_str:00000000000000cc .LASF24
+     /tmp/ccl5IYHt.s:79     .text:000000000000005c .LVL1
+     /tmp/ccl5IYHt.s:101    .text:0000000000000084 .LVL5
+     /tmp/ccl5IYHt.s:114    .text:000000000000009c .LVL7
+     /tmp/ccl5IYHt.s:136    .text:00000000000000c4 .LVL11
+     /tmp/ccl5IYHt.s:149    .text:00000000000000dc .LVL13
+     /tmp/ccl5IYHt.s:178    .debug_info:0000000000000000 .Ldebug_info0
+
+UNDEFINED SYMBOLS
+__putc
